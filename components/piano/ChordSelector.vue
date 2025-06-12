@@ -10,8 +10,11 @@
       <UButton
         v-for="chord in chordList"
         :key="chord.id"
+        color="neutral"
+        size="xl"
         variant="outline"
         :label="chord.name"
+        class="w-15 h-10 flex justify-center"
         @click="pianoStore.state.selectedChord = chord"
       />
     </UButtonGroup>
