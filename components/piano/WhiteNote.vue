@@ -1,0 +1,20 @@
+<template>
+  <div
+    class="h-full text-black font-bold flex flex-col items-center justify-end w-14 relative pb-4"
+    :class="props.isSelected ? 'bg-cyan-500' : 'bg-white'"
+  >
+    <p class="text-xs">
+      {{ props.note }}
+    </p>
+    <slot />
+  </div>
+</template>
+
+<script lang="ts" setup>
+interface Props {
+  note: string
+  isSelected: boolean
+}
+
+const props = defineProps<Props>()
+</script>

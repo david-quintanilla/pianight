@@ -1,23 +1,30 @@
 <template>
   <div class="h-70 flex gap-2 flex-col">
     <div class="flex h-60 gap-1">
-      <PianoWhiteKey
+      <PianoWhiteNote
         v-for="note in notes"
         :key="note.id"
-        :note="note.name">
-        <PianoBlackKey
+        :note="note.name"
+        :is-selected="octave ? octave.notes.includes(note.id) : false"
+      >
+        <PianoBlackNote
           v-if="note.blackNote"
           :notes="note.blackNote.name"
+          :is-selected="octave ? octave.notes.includes(note.blackNote.id) : false"
         />
-      </PianoWhiteKey>
+      </PianoWhiteNote>
     </div>
-    <p class="flex border-t-1 border-cyan-500 justify-center font-extrabold text-1xl">
+    <p class="flex border-1 border-t-0 border-cyan-500 justify-center font-extrabold text-1xl">
       Octava
     </p>
   </div>
 </template>
 
 <script lang="ts" setup>
+interface Props {
+  id: number
+}
+
 interface Note {
   id: number
   name: string
@@ -27,7 +34,16 @@ interface Note {
   }
 }
 
+const props = defineProps<Props>()
 const i18n = useI18n()
+const pianoStore = usePianoStore()
+
+const octave = computed(() => {
+  if (!pianoStore.state.selectedChord) return
+  console.log(pianoStore.state.selectedChord.octaves[props.id])
+  return pianoStore.state.selectedChord.octaves[props.id]
+})
+
 
 const notes: Note[] = reactive([
   {

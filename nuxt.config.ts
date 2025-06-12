@@ -23,7 +23,8 @@ export default defineNuxtConfig({
     '@nuxt/test-utils',
     '@nuxt/content',
     '@nuxt/ui',
-    '@nuxtjs/i18n'
+    '@nuxtjs/i18n',
+    '@pinia/nuxt'
   ],
   i18n: {
     defaultLocale: 'es',
