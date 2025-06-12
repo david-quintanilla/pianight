@@ -1,8 +1,19 @@
+import tailwindcss from '@tailwindcss/vite'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: '2025-05-15',
-  devtools: { enabled: true },
-
+  devtools: {
+    enabled: true
+  },
+  css: [
+    '@/assets/css/global.css'
+  ],
+  vite: {
+    plugins: [
+      tailwindcss(),
+    ],
+  },
   modules: [
     '@nuxt/eslint',
     '@nuxt/fonts',
@@ -11,6 +22,14 @@ export default defineNuxtConfig({
     '@nuxt/scripts',
     '@nuxt/test-utils',
     '@nuxt/content',
-    '@nuxt/ui'
-  ]
+    '@nuxt/ui',
+    '@nuxtjs/i18n'
+  ],
+  i18n: {
+    defaultLocale: 'es',
+    locales: [
+      { code: 'en', name: 'English', file: 'en.json' },
+      { code: 'es', name: 'Spanish', file: 'es.json' }
+    ]
+  }
 })

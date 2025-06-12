@@ -1,0 +1,11 @@
+{
+  "files.exclude": {
+    ".nuxt": true
+  },
+  "search.exclude": {
+    ".nuxt": true
+  },
+  "typescript.preferences.autoImportFileExcludePatterns": [
+    ".nuxt/**"
+  ]
+}
