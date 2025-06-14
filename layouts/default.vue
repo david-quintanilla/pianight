@@ -1,14 +1,14 @@
 <template>
   <div>
-    <header class="p-4 flex justify-between bg-cyan-400">
+    <header class="py-2 px-8 flex justify-between bg-cyan-400">
       <h1 class="text-black text-2xl font-extrabold">
         Pianight
       </h1>
       <USelect
-        v-model="value"
+        v-model="currentLocale"
         :items="items"
         class="w-20"
-        @change="i18n.setLocale(value)"
+        @change="i18n.setLocale(currentLocale)"
       />
     </header>
     <slot />
@@ -20,5 +20,5 @@ import type { Locale } from '#i18n'
 
 const i18n = useI18n()
 const items = computed(() => i18n.locales.value.map(locale => locale.code))
-const value = ref<Locale>('es')
+const currentLocale = ref<Locale>(i18n.locale.value)
 </script>

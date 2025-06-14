@@ -1,12 +1,9 @@
 <template>
-  <div class="p-8 flex flex-col gap-2">
-    <div>
-      <PianoChordSelector />
+  <div class="p-8 pt-4 flex gap-2">
+    <div class="flex justify-between items-start">
+      <PianoChordNavigator />
+      <PianoNoteSelector />
     </div>
-    <div class="flex justify-center gap-1">
-      <PianoKeyboardOctave :id="1" />
-      <PianoKeyboardOctave :id="2" />
-      <PianoKeyboardOctave :id="3" />
-    </div>
+    <PianoChordDetails class="w-full" />
   </div>
 </template>
