@@ -7,7 +7,7 @@
       <USelect
         v-model="currentLocale"
         :items="items"
-        class="w-20"
+        class="w-16"
         @change="i18n.setLocale(currentLocale)"
       />
     </header>
