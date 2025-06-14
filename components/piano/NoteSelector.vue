@@ -8,7 +8,8 @@
         size="xl"
         variant="soft"
         :label="noteItem.name"
-        class="w-15 h-10 flex justify-center"
+        class="w-30 h-10 flex justify-center"
+        :class="{ 'bg-white text-black hover:bg-white':  noteItem.id === pianoStore.state.selectedNote.id }"
         @click="pianoStore.state.selectedNote = noteItem"
       />
     </UButtonGroup>
@@ -18,6 +19,4 @@
 <script setup lang="ts">
 const pianoStore = usePianoStore()
 const note = useNotes()
-
-pianoStore.state.selectedNote = note.noteList.value[0]
 </script>

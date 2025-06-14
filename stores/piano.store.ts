@@ -1,11 +1,16 @@
-type Octave = 'firstOctave' | 'secondOctave' | 'thirdOctave'
-type ChordState = 'fundamental' | 'firstInversion' | 'secondInversion'
-type OctaveAssigment = {
-  [octave in Octave]: number[]
+import type { TabsItem } from '@nuxt/ui'
+
+interface OctaveAssigment {
+  firstOctave: number[]
+  secondOctave: number[]
+  thirdOctave: number[]
 }
 
-interface Chord extends Record<ChordState, OctaveAssigment> {
+interface Chord {
   id: number
+  fundamental: OctaveAssigment
+  firstInversion: OctaveAssigment
+  secondInversion: OctaveAssigment
 }
 
 interface Note {
@@ -17,31 +22,52 @@ interface Chords {
   label: string
   prefix: string
   chords: Chord[]
+  guide: {
+    fundamental: string
+    firstInversion: string
+    secondInversion: string
+  }
 }
 
 interface State {
-  selectedNote: null | Note,
-  selectedChords: Chords | null
+  selectedNote: Note,
+  selectChordIndex: number
 }
 
-interface Actions {
-  updateChords: (chords: unknown) => void
+interface Compute {
+  selectedChords: ComputedRef<Chords>
+  chordTypes: ComputedRef<TabsItem[]>
 }
 
 export const usePianoStore = defineStore('pianoStore', () => {
+  const notes = useNotes()
+
   const state: State = reactive({
-    selectedNote: null,
+    selectChordIndex: 0,
+    selectedNote: notes.noteList.value[0],
     selectedChords: null
   })
 
-  const actions: Actions = {
-    updateChords (chords) {
-      state.selectedChords = chords as Chords
-    }
+  const compute: Compute = {
+    selectedChords: computed(() => {
+      return compute.chordTypes.value[state.selectChordIndex] as Chords
+    }),
+
+    chordTypes: computed<TabsItem[]>(() => {
+      return notes.chordTypes.map(chord => ({
+        ...chord,
+        icon: 'entypo:note',
+        slot: chord.prefix
+      }))
+    })
   }
 
   return {
     state,
-    actions
+    compute
+  }
+}, {
+  persist: {
+    key: 'pianight'
   }
 })

@@ -4,7 +4,7 @@
       <p class="flex justify-center text-2xl font-extrabold gap-2 items-center pb-1">
         {{ selectedNote?.name }} {{ chords?.prefix }}
         <UBadge color="neutral">
-          1 + 4 + 3
+          {{ chords?.guide.fundamental }}
         </UBadge>
       </p>
 
@@ -19,7 +19,7 @@
       <p class="flex justify-center text-2xl font-extrabold gap-2 items-center pb-1">
         Primera inversión
         <UBadge color="neutral">
-          1 + 3 + 5
+          {{ chords?.guide.firstInversion }}
         </UBadge>
       </p>
       <div class="flex justify-center gap-1">
@@ -33,7 +33,7 @@
       <p class="flex justify-center items-center text-2xl font-extrabold gap-2 pb-1">
         Segunda inversión
         <UBadge color="neutral">
-          1 + 5 + 3
+          {{ chords?.guide.secondInversion }}
         </UBadge>
       </p>
       <div class="flex justify-center gap-1">
@@ -48,7 +48,7 @@
 <script lang="ts" setup>
 const pianoStore = usePianoStore()
 
-const chords = computed(() => pianoStore.state.selectedChords)
+const chords = computed(() => pianoStore.compute.selectedChords)
 
 const selectedNote = computed(() => pianoStore.state.selectedNote)
 
