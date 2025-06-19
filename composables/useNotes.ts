@@ -1,5 +1,13 @@
-import MajorChords from "./notes/major.chords"
-import MinorChords from "./notes/minor.chords"
+import majChords from './notes/maj.chords'
+import mChords from './notes/m.chords'
+import augChords from './notes/aug.chords'
+import dimChords from './notes/dim.chords'
+import sus2Chords from './notes/sus2.chords'
+import sus4Chords from './notes/sus4.chords'
+import _7Chords from './notes/7.chords'
+import m7Chords from './notes/m7.chords'
+import maj7Chords from './notes/maj7.chords'
+import mMaj7Chords from './notes/mMaj7.chords'
 
 interface Note {
   id: number
@@ -64,7 +72,7 @@ export function useNotes () {
     {
       label: 'maj',
       prefix: 'maj',
-      chords: MajorChords,
+      chords: majChords,
       guide: {
         fundamental: '1 + 4 + 3',
         firstInversion: '1 + 3 + 5',
@@ -74,7 +82,7 @@ export function useNotes () {
     {
       label: 'm',
       prefix: 'm',
-      chords: MinorChords,
+      chords: mChords,
       guide: {
         fundamental: '1 + 3 + 4',
         firstInversion: '1 + 4 + 5',
@@ -84,42 +92,82 @@ export function useNotes () {
     {
       label: 'aug, +',
       prefix: 'aug',
-      chords: []
+      chords: augChords,
+      guide: {
+        fundamental: '1 + 4 + 4',
+        firstInversion: '1 + 4 + 4',
+        secondInversion: '1 + 4 + 4'
+      }
     },
     {
       label: 'dim, °',
       prefix: 'dim',
-      chords: []
+      chords: dimChords,
+      guide: {
+        fundamental: '1 + 3 + 3',
+        firstInversion: '1 + 3 + 6',
+        secondInversion: '1 + 6 + 3'
+      }
     },
     {
       label: 'sus2',
       prefix: 'sus2',
-      chords: []
+      chords: sus2Chords,
+      guide: {
+        fundamental: '1 + 2 + 5',
+        firstInversion: '1 + 5 + 5',
+        secondInversion: '1 + 5 + 2'
+      }
     },
     {
       label: 'sus4',
       prefix: 'sus4',
-      chords: []
+      chords: sus4Chords,
+      guide: {
+        fundamental: '1 + 5 + 2',
+        firstInversion: '1 + 2 + 5',
+        secondInversion: '1 + 5 + 5'
+      }
     },
     {
       label: '7',
       prefix: '7',
-      chords: []
+      chords: _7Chords,
+      guide: {
+        fundamental: '1 + 4 + 3 + 3',
+        firstInversion: '1 + 3 + 3 + 2',
+        secondInversion: '1 + 3 + 2 + 4'
+      }
     },
     {
       label: 'm7',
       prefix: 'm7',
-      chords: []
+      chords: m7Chords,
+      guide: {
+        fundamental: '1 + 3 + 4 + 3',
+        firstInversion: '1 + 4 + 3 + 2',
+        secondInversion: '1 + 3 + 2 + 3'
+      }
     },
     {
       label: 'maj7',
       prefix: 'maj7',
-      chords: []
+      chords: maj7Chords,
+      guide: {
+        fundamental: '1 + 4 + 3 + 4',
+        firstInversion: '1 + 3 + 4 + 1',
+        secondInversion: '1 + 4 + 1 + 4'
+      }
     },
     {
       label: 'mMaj7',
       prefix: 'mMaj7',
-      chords: []
+      chords: mMaj7Chords,
+      guide: {
+        fundamental: '1 + 3 + 4 + 4',
+        firstInversion: '1 + 4 + 4 + 1',
+        secondInversion: '1 + 4 + 1 + 3'
+      }
     }
   ]
 
