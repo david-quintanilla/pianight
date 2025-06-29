@@ -3,12 +3,10 @@
     <UTabs
       v-model="pianoStore.state.selectChordIndex"
       :items="pianoStore.compute.chordTypes"
-      class="w-full"
       color="neutral"
       variant="pill"
-      size="xl"
-      orientation="vertical"
-      :ui="{ list: 'gap-2', trigger: 'w-full' }"
+      size="md"
+      :ui="{ list: '', trigger: 'flex px-4' }"
     />
   </div>
 </template>

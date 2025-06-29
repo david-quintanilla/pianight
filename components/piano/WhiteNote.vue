@@ -1,6 +1,6 @@
 <template>
   <div
-    class="h-full text-black font-bold flex flex-col items-center justify-end w-13 relative pb-3"
+    class="h-full text-black font-bold flex flex-col items-center justify-end w-10 lg:w-11 xl:w-13 relative pb-3"
     :class="props.isSelected ? 'bg-cyan-500' : 'bg-white'"
   >
     <p class="text-xs">
