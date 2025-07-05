@@ -8,8 +8,11 @@ export default defineNuxtConfig({
     enabled: true
   },
   css: [
-    '@/assets/css/global.css'
+    '~/assets/css/global.css'
   ],
+  future: {
+    compatibilityVersion: 4
+  },
   vite: {
     plugins: [
       tailwindcss(),
@@ -29,6 +32,8 @@ export default defineNuxtConfig({
     'pinia-plugin-persistedstate/nuxt'
   ],
   i18n: {
+    restructureDir: 'app',
+    langDir: 'i18n/locales',
     defaultLocale: 'es',
     locales: [
       { code: 'en', name: 'English', file: 'en.json' },
