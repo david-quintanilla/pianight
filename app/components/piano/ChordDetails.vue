@@ -42,6 +42,20 @@
         <PianoKeyboardOctave :selected-notes="currentChord.secondInversion.thirdOctave" />
       </div>
     </div>
+
+    <div v-if="currentChord?.thirdInversion">
+      <p class="flex justify-center items-center text-2xl font-extrabold gap-2 pb-1">
+        Tercera inversión
+        <UBadge color="neutral">
+          {{ chords?.guide.thirdInversion }}
+        </UBadge>
+      </p>
+      <div class="flex justify-center gap-1">
+        <PianoKeyboardOctave :selected-notes="currentChord.thirdInversion.firstOctave" />
+        <PianoKeyboardOctave :selected-notes="currentChord.thirdInversion.secondOctave" />
+        <PianoKeyboardOctave :selected-notes="currentChord.thirdInversion.thirdOctave" />
+      </div>
+    </div>
   </div>
 </template>
 

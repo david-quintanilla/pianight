@@ -11,6 +11,7 @@ interface Chord {
   fundamental: OctaveAssigment
   firstInversion: OctaveAssigment
   secondInversion: OctaveAssigment
+  thirdInversion: OctaveAssigment
 }
 
 interface Note {
@@ -26,6 +27,7 @@ interface Chords {
     fundamental: string
     firstInversion: string
     secondInversion: string
+    thirdInversion: string
   }
 }
 

@@ -8,6 +8,8 @@ import _7Chords from './notes/7.chords'
 import m7Chords from './notes/m7.chords'
 import maj7Chords from './notes/maj7.chords'
 import mMaj7Chords from './notes/mMaj7.chords'
+import add2Chords from './notes/add2.chords'
+import add4Chords from './notes/add4.chords'
 
 interface Note {
   id: number
@@ -110,6 +112,26 @@ export function useNotes () {
       }
     },
     {
+      label: 'add2',
+      prefix: 'add2',
+      chords: add2Chords,
+      guide: {
+        fundamental: '1 + 2 + 2 + 3',
+        firstInversion: '1 + 2 + 3 + 5',
+        secondInversion: '1 + 3 + 5 + 2'
+      }
+    },
+    {
+      label: 'add4',
+      prefix: 'add4',
+      chords: add4Chords,
+      guide: {
+        fundamental: '1 + 4 + 1 + 2',
+        firstInversion: '1 + 1 + 2 + 5',
+        secondInversion: '1 + 2 + 5 + 4'
+      }
+    },
+    {
       label: 'sus2',
       prefix: 'sus2',
       chords: sus2Chords,
@@ -136,7 +158,8 @@ export function useNotes () {
       guide: {
         fundamental: '1 + 4 + 3 + 3',
         firstInversion: '1 + 3 + 3 + 2',
-        secondInversion: '1 + 3 + 2 + 4'
+        secondInversion: '1 + 3 + 2 + 4',
+        thirdInversion: '1 + 2 + 4 + 3'
       }
     },
     {
@@ -146,7 +169,8 @@ export function useNotes () {
       guide: {
         fundamental: '1 + 3 + 4 + 3',
         firstInversion: '1 + 4 + 3 + 2',
-        secondInversion: '1 + 3 + 2 + 3'
+        secondInversion: '1 + 3 + 2 + 3',
+        thirdInversion: '1 + 2 + 3 + 4'
       }
     },
     {
@@ -156,7 +180,8 @@ export function useNotes () {
       guide: {
         fundamental: '1 + 4 + 3 + 4',
         firstInversion: '1 + 3 + 4 + 1',
-        secondInversion: '1 + 4 + 1 + 4'
+        secondInversion: '1 + 4 + 1 + 4',
+        thirdInversion: '1 + 1 + 4 + 3'
       }
     },
     {
@@ -166,7 +191,8 @@ export function useNotes () {
       guide: {
         fundamental: '1 + 3 + 4 + 4',
         firstInversion: '1 + 4 + 4 + 1',
-        secondInversion: '1 + 4 + 1 + 3'
+        secondInversion: '1 + 4 + 1 + 3',
+        thirdInversion: '1 + 1 + 3 + 4'
       }
     }
   ]

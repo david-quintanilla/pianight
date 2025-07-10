@@ -11,6 +11,10 @@ export default [
     secondInversion: {
       firstOctave: [8, 12],
       secondOctave: [1, 4]
+    },
+    thirdInversion: {
+      firstOctave: [12],
+      secondOctave: [1, 4, 8]
     }
   },
   {
@@ -26,6 +30,9 @@ export default [
     secondInversion: {
       firstOctave: [9],
       secondOctave: [1, 2, 5]
+    },
+    thirdInversion: {
+      secondOctave: [1, 2, 5, 9]
     }
   },
   {
@@ -41,6 +48,9 @@ export default [
     secondInversion: {
       firstOctave: [10],
       secondOctave: [2, 3, 6]
+    },
+    thirdInversion: {
+      secondOctave: [2, 3, 6, 10]
     }
   },
   {
@@ -56,6 +66,9 @@ export default [
     secondInversion: {
       firstOctave: [11],
       secondOctave: [3, 4, 7]
+    },
+    thirdInversion: {
+      secondOctave: [3, 4, 7, 11]
     }
   },
   {
@@ -71,6 +84,9 @@ export default [
     secondInversion: {
       firstOctave: [12],
       secondOctave: [4, 5, 8],
+    },
+    thirdInversion: {
+      secondOctave: [4, 5, 8, 12],
     }
   },
   {
@@ -85,6 +101,10 @@ export default [
     },
     secondInversion: {
       secondOctave: [1, 5, 6, 9],
+    },
+    thirdInversion: {
+      secondOctave: [5, 6, 9],
+      thirdOctave: [1]
     }
   },
   {
@@ -99,6 +119,10 @@ export default [
     },
     secondInversion: {
       secondOctave: [2, 6, 7, 10],
+    },
+    thirdInversion: {
+      secondOctave: [6, 7, 10],
+      thirdOctave: [2]
     }
   },
   {
@@ -113,6 +137,10 @@ export default [
     },
     secondInversion: {
       secondOctave: [3, 7, 8, 11],
+    },
+    thirdInversion: {
+      secondOctave: [7, 8, 11],
+      thirdOctave: [3]
     }
   },
   {
@@ -127,6 +155,10 @@ export default [
     },
     secondInversion: {
       secondOctave: [4, 8, 9, 12],
+    },
+    thirdInversion: {
+      secondOctave: [8, 9, 12],
+      thirdOctave: [4]
     }
   },
   {
@@ -141,6 +173,10 @@ export default [
     secondInversion: {
       secondOctave: [5, 9, 10],
       thirdOctave: [1],
+    },
+    thirdInversion: {
+      secondOctave: [9, 10],
+      thirdOctave: [1, 5],
     }
   },
   {
@@ -155,6 +191,10 @@ export default [
     secondInversion: {
       secondOctave: [6, 10, 11],
       thirdOctave: [2],
+    },
+    thirdInversion: {
+      secondOctave: [10, 11],
+      thirdOctave: [2, 6],
     }
   },
   {
@@ -169,6 +209,10 @@ export default [
     secondInversion: {
       secondOctave: [7, 11, 12],
       thirdOctave: [3],
+    },
+    thirdInversion: {
+      secondOctave: [11, 12],
+      thirdOctave: [3, 7],
     }
   },
 ]
