@@ -7,5 +7,8 @@
   "note.f": "FA",
   "note.g": "SOL",
   "note.bemol": "♭",
-  "note.sostenido": "#"
+  "note.sostenido": "#",
+  "chords": "Acordes",
+  "staves-and-note-values": "Pentagramas y Figuras musicales",
+  "expressions-and-symbols": "Expresiones y Símbolos"
 }
