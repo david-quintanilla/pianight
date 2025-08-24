@@ -9,6 +9,7 @@
   "note.bemol": "♭",
   "note.sostenido": "#",
   "chords": "Chords",
-  "staves-and-note-values": "Staves and Note values",
+  "staves": "Staves",
+  "note-values": "Note values",
   "expressions-and-symbols": "Expressions and Symbols"
 }

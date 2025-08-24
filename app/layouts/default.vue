@@ -42,9 +42,9 @@ const menu = computed(() => [
     isActive: route.path === '/'
   },
   {
-    label: i18n.t('staves-and-note-values'),
-    route: '/staves-and-note-values',
-    isActive: route.path === '/staves-and-note-values'
+    label: i18n.t('staves'),
+    route: '/staves',
+    isActive: route.path.includes('/staves')
   },
   // {
   //   label: i18n.t('expressions-and-symbols'),

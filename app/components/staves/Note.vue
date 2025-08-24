@@ -22,7 +22,7 @@ const props = defineProps<Props>()
 
 const noteStyle = `
   bg-cyan-500 rounded-md h-6 w-7 flex items-center justify-center
-  text-black font-semibold border text-sm
+  text-black font-semibold border text-[11px]
 `
 
 const topLine = `

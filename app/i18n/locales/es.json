@@ -9,6 +9,7 @@
   "note.bemol": "♭",
   "note.sostenido": "#",
   "chords": "Acordes",
-  "staves-and-note-values": "Pentagramas y Figuras musicales",
+  "staves": "Pentagramas",
+  "note-values": "Figuras musicales",
   "expressions-and-symbols": "Expresiones y Símbolos"
 }
