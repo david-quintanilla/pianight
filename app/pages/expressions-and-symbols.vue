@@ -1,3 +1,5 @@
 <template>
-  <h1>Expresiones y símbolos</h1>
+  <h1>
+    <!-- Expresiones y símbolos -->
+  </h1>
 </template>
