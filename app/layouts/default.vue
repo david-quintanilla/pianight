@@ -1,50 +1,95 @@
 <template>
   <div class="min-h-screen bg-ink-950">
-    <header class="sticky top-0 z-50 backdrop-blur-md bg-ink-950/80 border-b border-white/5">
-      <div class="max-w-[1600px] mx-auto px-6 lg:px-10 h-14 flex items-center justify-between gap-6">
-        <NuxtLink
-          to="/"
-          class="font-display text-xl font-semibold tracking-tight text-paper hover:text-aqua-200 transition"
-        >
-          Pianight<span class="text-aqua-400">.</span>
+    <header class="sticky top-0 z-50 backdrop-blur-md bg-ink-950/70">
+      <div class="max-w-[1600px] mx-auto px-6 lg:px-12 h-14 flex items-center justify-between gap-10">
+
+        <!-- Logo lockup -->
+        <NuxtLink to="/" class="shrink-0 logo-wrap">
+          <span class="logo-word font-display text-[22px] font-semibold tracking-tight leading-none">
+            Pianight
+          </span>
         </NuxtLink>
 
-        <nav class="flex items-center gap-1">
+        <!-- Nav con indicador deslizante dorado -->
+        <nav
+          ref="navEl"
+          class="relative flex items-center gap-1"
+        >
+          <span
+            class="absolute top-1/2 -translate-y-1/2 h-9 rounded-full bg-gradient-to-b from-gold-400/15 to-gold-500/[0.06] border border-gold-400/20 transition-all duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
+            :style="indicatorStyle"
+          />
           <NuxtLink
             v-for="item in menu"
             :key="item.route"
+            :ref="(el) => itemRefs[item.route] = el as ComponentPublicInstance | null"
             :to="item.route"
-            class="px-4 py-1.5 rounded-md text-sm font-medium transition"
+            class="relative z-10 px-5 h-9 inline-flex items-center font-display text-[15px] font-medium tracking-tight transition-colors duration-200"
             :class="item.isActive
-              ? 'text-paper bg-white/5'
-              : 'text-cyan-100/55 hover:text-paper hover:bg-white/[0.03]'"
+              ? 'text-gold-200'
+              : 'text-paper/65 hover:text-paper'"
           >
             {{ item.label }}
           </NuxtLink>
         </nav>
 
-        <div class="flex items-center gap-2">
+        <!-- Idioma -->
+        <div class="flex items-center shrink-0">
           <button
-            v-for="locale in i18n.locales.value"
+            v-for="(locale, i) in i18n.locales.value"
             :key="locale.code"
-            class="text-xs px-2 py-1 rounded transition uppercase tracking-wider font-medium"
-            :class="i18n.locale.value === locale.code
-              ? 'text-aqua-300'
-              : 'text-cyan-100/40 hover:text-paper'"
+            class="relative h-8 px-3 text-[11px] uppercase tracking-[0.18em] font-medium transition-colors duration-200"
+            :class="[
+              i18n.locale.value === locale.code ? 'text-gold-300' : 'text-paper/40 hover:text-paper/80',
+              i > 0 ? 'border-l border-white/[0.08]' : ''
+            ]"
             @click="i18n.setLocale(locale.code)"
           >
             {{ locale.code }}
           </button>
         </div>
+
       </div>
+
+      <span
+        aria-hidden="true"
+        class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-400/15 to-transparent"
+      />
     </header>
+
     <main>
       <slot />
     </main>
   </div>
 </template>
 
+<style scoped>
+.logo-word {
+  background: linear-gradient(
+    100deg,
+    #f4f1ea 0%,
+    #fcd34d 40%,
+    #f4f1ea 60%,
+    #67e8f9 100%
+  );
+  background-size: 200% 100%;
+  background-position: 0% 50%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shimmer 8s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+</style>
+
 <script setup lang="ts">
+import type { ComponentPublicInstance } from 'vue'
+
 const i18n = useI18n()
 const route = useRoute()
 
@@ -60,4 +105,29 @@ const menu = computed(() => [
     isActive: route.path.includes('/staves')
   }
 ])
+
+const navEl = ref<HTMLElement | null>(null)
+const itemRefs = ref<Record<string, ComponentPublicInstance | null>>({})
+const indicatorStyle = ref({ left: '0px', width: '0px', opacity: '0' })
+
+function updateIndicator() {
+  const active = menu.value.find(i => i.isActive)
+  if (!active) {
+    indicatorStyle.value = { ...indicatorStyle.value, opacity: '0' }
+    return
+  }
+  const target = itemRefs.value[active.route]?.$el as HTMLElement | undefined
+  const nav = navEl.value
+  if (!target || !nav) return
+  const navRect = nav.getBoundingClientRect()
+  const rect = target.getBoundingClientRect()
+  indicatorStyle.value = {
+    left: `${rect.left - navRect.left}px`,
+    width: `${rect.width}px`,
+    opacity: '1'
+  }
+}
+
+onMounted(() => nextTick(updateIndicator))
+watch(() => route.path, () => nextTick(updateIndicator))
 </script>

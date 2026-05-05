@@ -194,13 +194,26 @@ button {
   -webkit-text-fill-color: transparent;
 }
 
-/* Tecla activa: gradiente cyan profundo */
+/* Tecla activa: gradiente cyan profundo + glow respirando */
 .key-active-gradient {
   background: linear-gradient(180deg, #67e8f9 0%, #22d3ee 50%, #06b6d4 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.15),
-    0 0 12px rgba(34, 211, 238, 0.3);
+  animation: key-glow 2.8s ease-in-out infinite;
+}
+
+/* Tecla activa: glow respirando */
+@keyframes key-glow {
+  0%, 100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.15),
+      0 0 12px rgba(34, 211, 238, 0.3);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.15),
+      0 0 22px rgba(34, 211, 238, 0.55);
+  }
 }
 
 /* Tecla blanca con sombra interna sutil */

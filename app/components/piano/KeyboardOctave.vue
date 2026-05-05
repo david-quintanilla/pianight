@@ -1,5 +1,5 @@
 <template>
-  <div class="h-40 flex gap-1 flex-col">
+  <div class="h-32 flex gap-1 flex-col">
     <div class="flex h-full gap-1">
       <PianoWhiteNote
         v-for="note in notes"
