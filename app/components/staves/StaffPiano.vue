@@ -1,85 +1,50 @@
 <template>
-  <div class="w-full flex justify-center">
-    <svg
-      :viewBox="`0 0 ${totalWidth} ${height}`"
-      :style="{ maxWidth: `${totalWidth}px`, width: '100%' }"
-      class="h-auto"
-      role="img"
-      aria-label="Piano"
-    >
-      <!-- Sombra superior decorativa -->
-      <rect
-        :x="0"
-        :y="0"
-        :width="totalWidth"
-        :height="6"
-        fill="url(#topGradient)"
-      />
-      <defs>
-        <linearGradient id="topGradient" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="rgba(0,0,0,0.55)" />
-          <stop offset="100%" stop-color="rgba(0,0,0,0)" />
-        </linearGradient>
-      </defs>
-
-      <!-- Teclas blancas -->
-      <g
+  <div class="w-full overflow-x-auto scroll-elegant">
+    <div class="flex h-32 mx-auto" :style="{ width: `${whites.length * whiteWidth}px` }">
+      <div
         v-for="(white, i) in whites"
-        :key="`w-${white.id}`"
+        :key="white.id"
+        class="relative h-full rounded-b-md key-white cursor-pointer flex flex-col items-center justify-end pb-3"
+        :style="{ width: `${whiteWidth}px` }"
+        @mouseenter="handleEnter(white)"
+        @mouseleave="$emit('hover', null)"
+        @click="handleClick(white)"
       >
-        <rect
-          :x="i * whiteWidth"
-          :y="0"
-          :width="whiteWidth"
-          :height="height"
-          :rx="4"
-          :fill="isHighlighted(white) ? 'var(--color-aqua-300)' : 'var(--color-paper)'"
-          stroke="rgba(0,0,0,0.4)"
-          stroke-width="0.8"
-          class="cursor-pointer transition-colors duration-150"
-          @mouseenter="handleEnter(white)"
-          @mouseleave="$emit('hover', null)"
-          @click="handleClick(white)"
+        <span
+          aria-hidden="true"
+          class="absolute inset-0 rounded-b-md key-active-gradient pointer-events-none transition-opacity duration-300 ease-out"
+          :style="{ opacity: isHighlighted(white) ? 1 : 0 }"
         />
-        <text
-          :x="i * whiteWidth + whiteWidth / 2"
-          :y="height - 16"
-          text-anchor="middle"
-          class="pointer-events-none select-none font-display"
-          :style="{
-            fontSize: '13px',
-            fontWeight: 500,
-            letterSpacing: '0.08em',
-            fill: isHighlighted(white) ? '#0b0d13' : '#3f3a30'
-          }"
-        >{{ noteName(white) }}</text>
+        <p
+          class="relative z-10 text-xs font-display tracking-wide transition-colors duration-300"
+          :class="isHighlighted(white) ? 'text-ink-950 font-semibold' : 'text-ink-900/70 font-medium'"
+        >
+          {{ noteName(white) }}
+        </p>
 
         <!-- Marca de DO central -->
-        <circle
+        <span
           v-if="white.letter === 'C' && white.octave === 4"
-          :cx="i * whiteWidth + whiteWidth / 2"
-          :cy="height - 38"
-          :r="2.5"
-          fill="var(--color-gold-400)"
-          class="pointer-events-none"
+          aria-hidden="true"
+          class="absolute z-10 bottom-9 w-1.5 h-1.5 rounded-full bg-ink-900"
         />
-      </g>
 
-      <!-- Teclas negras -->
-      <rect
-        v-for="black in blackKeys"
-        :key="`b-${black.x}`"
-        :x="black.x"
-        :y="0"
-        :width="blackWidth"
-        :height="height * 0.62"
-        :rx="3"
-        fill="#0a0a0f"
-        stroke="rgba(255,255,255,0.06)"
-        stroke-width="0.6"
-        class="pointer-events-none"
-      />
-    </svg>
+        <!-- Tecla negra (sostenido del blanco actual) -->
+        <div
+          v-if="i < whites.length - 1 && hasBlackAfter(white.letter)"
+          class="absolute top-0 -right-5 z-10 w-10 h-22 rounded-b-md key-black cursor-pointer overflow-visible"
+          @mouseenter.stop="handleEnter(blackFor(white))"
+          @mouseleave.stop="$emit('hover', null)"
+          @click.stop="handleClick(blackFor(white))"
+        >
+          <span
+            aria-hidden="true"
+            class="absolute inset-0 rounded-b-md key-active-gradient ring-1 ring-cyan-200/60 pointer-events-none transition-opacity duration-300 ease-out"
+            :style="{ opacity: isHighlighted(blackFor(white)) ? 1 : 0 }"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -102,32 +67,25 @@ const emit = defineEmits<{
   select: [note: StaffNote]
 }>()
 
-const { noteName } = useStaff()
+const { noteName, buildSharp } = useStaff()
 const { playMidi } = useAudio()
 
-const whiteWidth = 56
-const blackWidth = 32
-const height = 200
-
-const totalWidth = computed(() => props.whites.length * whiteWidth)
+const whiteWidth = 52
 
 const BLACK_AFTER: Record<string, boolean> = {
   C: true, D: true, F: true, G: true, A: true
 }
 
-const blackKeys = computed(() => {
-  const keys: { x: number }[] = []
-  props.whites.forEach((w, i) => {
-    if (i === props.whites.length - 1) return
-    if (BLACK_AFTER[w.letter]) {
-      keys.push({ x: (i + 1) * whiteWidth - blackWidth / 2 })
-    }
-  })
-  return keys
-})
+function hasBlackAfter(letter: string): boolean {
+  return !!BLACK_AFTER[letter]
+}
+
+function blackFor(white: StaffNote): StaffNote {
+  return buildSharp(white.letter, white.octave)
+}
 
 function isHighlighted(note: StaffNote): boolean {
-  return props.highlighted?.id === note.id
+  return props.highlighted?.midi === note.midi
 }
 
 function handleEnter(note: StaffNote) {

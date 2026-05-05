@@ -1,4 +1,5 @@
 type StepLetter = 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B'
+export type Accidental = 'sharp' | 'flat' | null
 
 export interface StaffNote {
   id: string
@@ -6,6 +7,7 @@ export interface StaffNote {
   octave: number
   midi: number
   step: number
+  accidental?: Accidental
 }
 
 export type Clef = 'treble' | 'bass'
@@ -29,7 +31,19 @@ function buildNote(letter: StepLetter, octave: number): StaffNote {
     letter,
     octave,
     midi: letterToMidi(letter, octave),
-    step: letterToStep(letter, octave)
+    step: letterToStep(letter, octave),
+    accidental: null
+  }
+}
+
+function buildSharp(letter: StepLetter, octave: number): StaffNote {
+  return {
+    id: `${letter}#${octave}`,
+    letter,
+    octave,
+    midi: letterToMidi(letter, octave) + 1,
+    step: letterToStep(letter, octave),
+    accidental: 'sharp'
   }
 }
 
@@ -48,6 +62,15 @@ export function useStaff() {
     return i18n.t(letterKey[note.letter])
   }
 
+  function noteLabel(note: StaffNote): string {
+    const base = i18n.t(letterKey[note.letter])
+    if (note.accidental !== 'sharp') return base
+    const nextIdx = (LETTERS.indexOf(note.letter) + 1) % 7
+    const nextLetter = LETTERS[nextIdx]!
+    const enharmonic = i18n.t(letterKey[nextLetter])
+    return `${base}${i18n.t('note.sostenido')} / ${enharmonic}${i18n.t('note.bemol')}`
+  }
+
   function buildRange(from: StaffNote, to: StaffNote): StaffNote[] {
     const notes: StaffNote[] = []
     for (let step = from.step; step <= to.step; step++) {
@@ -62,14 +85,16 @@ export function useStaff() {
     return clef === 'treble' ? TREBLE_BOTTOM : BASS_BOTTOM
   }
 
-  const trebleNotes = buildRange(buildNote('C', 4), buildNote('A', 5))
-  const bassNotes = buildRange(buildNote('E', 2), buildNote('C', 4))
+  const trebleNotes = buildRange(buildNote('C', 4), buildNote('C', 6))
+  const bassNotes = buildRange(buildNote('C', 2), buildNote('C', 4))
 
   return {
     trebleNotes,
     bassNotes,
     noteName,
+    noteLabel,
     bottomStep,
-    buildNote
+    buildNote,
+    buildSharp
   }
 }

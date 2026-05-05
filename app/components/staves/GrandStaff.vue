@@ -1,7 +1,7 @@
 <template>
   <div class="w-full">
     <svg
-      :viewBox="`0 0 ${width} ${height}`"
+      :viewBox="`0 ${-topPadding} ${width} ${height + topPadding}`"
       :style="{ width: '100%', height: 'auto' }"
       role="img"
       :aria-label="$t('page.staves-title')"
@@ -107,6 +107,16 @@
           fill="transparent"
         />
 
+        <!-- Sostenido cuando la negra del piano está activa -->
+        <text
+          v-if="isHighlighted(entry.note) && highlightedIsSharp"
+          :x="-noteRadius - 4"
+          :y="lineGap * 0.55"
+          text-anchor="end"
+          class="font-music pointer-events-none select-none"
+          :style="{ fontSize: `${lineGap * 2.1}px`, fill: 'var(--color-aqua-300)' }"
+        >{{ sharpGlyph }}</text>
+
         <ellipse
           :cx="0"
           :cy="0"
@@ -120,16 +130,28 @@
         />
 
         <!-- Etiqueta -->
-        <g v-if="isHighlighted(entry.note)">
+        <g
+          v-if="isHighlighted(entry.note)"
+          class="pointer-events-none"
+        >
+          <rect
+            :x="-(highlightedIsSharp ? 56 : 24)"
+            :y="entry.labelY - lineGap * 1.15"
+            :width="highlightedIsSharp ? 112 : 48"
+            :height="lineGap * 1.7"
+            :rx="lineGap * 0.85"
+            fill="var(--color-ink-900)"
+            stroke="var(--color-aqua-400)"
+            stroke-opacity="0.45"
+            stroke-width="1"
+          />
           <text
             :x="0"
             :y="entry.labelY"
             text-anchor="middle"
-            class="font-display select-none pointer-events-none"
-            :style="{ fontSize: `${lineGap * 1.15}px`, fontWeight: 600, letterSpacing: '0.02em', fill: 'var(--color-aqua-100)' }"
-          >{{ noteName(entry.note) }}<tspan
-            :style="{ fontSize: `${lineGap * 0.7}px`, fill: 'rgba(103, 232, 249, 0.7)', baselineShift: 'sub' }"
-          >{{ entry.note.octave }}</tspan></text>
+            class="font-display select-none"
+            :style="{ fontSize: `${lineGap}px`, fontWeight: 700, letterSpacing: '0.06em', fill: 'var(--color-paper)' }"
+          >{{ highlightLabel(entry.note) }}</text>
         </g>
       </g>
     </svg>
@@ -156,8 +178,17 @@ const emit = defineEmits<{
   select: [note: StaffNote]
 }>()
 
-const { noteName, bottomStep, buildNote } = useStaff()
+const { noteName, noteLabel, bottomStep, buildNote } = useStaff()
 const { playMidi } = useAudio()
+
+const sharpGlyph = String.fromCodePoint(0xE262)
+
+const highlightedIsSharp = computed(() => props.highlighted?.accidental === 'sharp')
+
+function highlightLabel(note: StaffNote): string {
+  if (!props.highlighted) return noteName(note)
+  return noteLabel(props.highlighted)
+}
 
 const lineGap = 13
 const noteRadius = lineGap * 0.6
@@ -169,6 +200,7 @@ const trebleTop = lineGap * 5
 const staffGap = lineGap * 4.5
 const bassTop = trebleTop + 4 * lineGap + staffGap
 const height = bassTop + 4 * lineGap + lineGap * 5
+const topPadding = lineGap * 5
 
 const lineColor = 'rgba(207, 250, 254, 0.7)'
 
@@ -224,13 +256,15 @@ const placedNotes = computed<PlacedNote[]>(() => {
       }
     }
 
-    const labelY = onTreble ? -lineGap * 3.5 : lineGap * 4.6
+    const labelY = -lineGap * 3.5
     return { note, x: leftPadding + i * noteSpacing, y, ledgers, labelY }
   })
 })
 
 function isHighlighted(note: StaffNote): boolean {
-  return props.highlighted?.id === note.id
+  const h = props.highlighted
+  if (!h) return false
+  return h.letter === note.letter && h.octave === note.octave
 }
 
 function handleEnter(note: StaffNote) {

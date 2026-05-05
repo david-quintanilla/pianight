@@ -1,5 +1,5 @@
 <template>
-  <aside class="flex flex-col h-full bg-ink-900/60 border border-white/5 rounded-2xl overflow-hidden backdrop-blur">
+  <aside class="flex flex-col h-full overflow-hidden">
     <header class="px-6 py-5 border-b border-white/5">
       <h2 class="font-display text-xl font-semibold tracking-tight text-paper">
         {{ $t('symbol-glossary.title') }}
