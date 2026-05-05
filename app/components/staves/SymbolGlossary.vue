@@ -54,9 +54,16 @@
             @click="setActive(sym)"
           >
             <span
-              class="font-music text-paper/90 w-9 text-center flex-shrink-0"
+              v-if="sym.svg"
+              class="text-paper/90 w-9 flex items-center justify-center flex-shrink-0 [&>svg]:h-[32px] [&>svg]:w-auto"
               :class="active?.id === sym.id ? 'text-aqua-300' : ''"
-              :style="{ fontSize: '26px', lineHeight: '1' }"
+              v-html="sym.svg"
+            />
+            <span
+              v-else
+              class="font-music text-paper/90 w-9 text-center flex-shrink-0 inline-block"
+              :class="active?.id === sym.id ? 'text-aqua-300' : ''"
+              :style="{ fontSize: '26px', lineHeight: '1', transform: sym.rotate ? `rotate(${sym.rotate}deg)` : undefined }"
             >{{ sym.glyph }}</span>
             <span class="flex-1 min-w-0">
               <span class="block font-display text-[13px] font-medium text-paper/95 leading-tight truncate">
@@ -84,8 +91,14 @@
     >
       <div class="flex items-start gap-5">
         <span
-          class="font-music text-aqua-300 flex-shrink-0"
-          :style="{ fontSize: '54px', lineHeight: '1' }"
+          v-if="active.svg"
+          class="text-aqua-300 flex-shrink-0 flex items-center justify-center [&>svg]:h-[64px] [&>svg]:w-auto"
+          v-html="active.svg"
+        />
+        <span
+          v-else
+          class="font-music text-aqua-300 flex-shrink-0 inline-block"
+          :style="{ fontSize: '54px', lineHeight: '1', transform: active.rotate ? `rotate(${active.rotate}deg)` : undefined }"
         >{{ active.glyph }}</span>
         <div class="min-w-0">
           <h3 class="font-display text-base font-semibold text-paper tracking-tight">

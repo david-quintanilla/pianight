@@ -3,6 +3,8 @@ export interface MusicSymbol {
   name: string
   glyph: string
   meaning: string
+  rotate?: number
+  svg?: string
 }
 
 export interface SymbolCategory {
@@ -14,6 +16,18 @@ export interface SymbolCategory {
 // Codepoints SMuFL (Bravura)
 // Referencia: https://w3c.github.io/smufl/latest/tables/
 const cp = (hex: string) => String.fromCodePoint(parseInt(hex, 16))
+
+// Arpegio: serpentina vertical con flecha triangular sólida. dir: 'up' o 'down'.
+function arpeggioSvg(dir: 'up' | 'down'): string {
+  const wavePath = 'M 14 6 C 22 11, 6 17, 14 22 S 22 33, 14 38 S 6 49, 14 54'
+  const arrow = dir === 'down'
+    ? '<path d="M 6 52 L 14 64 L 22 52 Z" fill="currentColor"/>'
+    : '<path d="M 6 12 L 14 0 L 22 12 Z" fill="currentColor"/>'
+  return `<svg viewBox="0 -2 28 68" xmlns="http://www.w3.org/2000/svg">
+    <path d="${wavePath}" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>
+    ${arrow}
+  </svg>`
+}
 
 export function useSymbols() {
   const { t } = useI18n()
@@ -37,6 +51,16 @@ export function useSymbols() {
         { id: 'quarter', name: t('symbols.quarter'), glyph: cp('E1D5'), meaning: t('symbols.quarter-meaning') },
         { id: 'eighth', name: t('symbols.eighth'), glyph: cp('E1D7'), meaning: t('symbols.eighth-meaning') },
         { id: 'sixteenth', name: t('symbols.sixteenth'), glyph: cp('E1D9'), meaning: t('symbols.sixteenth-meaning') }
+      ]
+    },
+    {
+      id: 'rhythm',
+      label: t('symbols.rhythm'),
+      symbols: [
+        { id: 'aug-dot', name: t('symbols.aug-dot'), glyph: cp('E1E7'), meaning: t('symbols.aug-dot-meaning') },
+        { id: 'tie', name: t('symbols.tie'), glyph: cp('E1FD'), meaning: t('symbols.tie-meaning') },
+        { id: 'arpeggio-up', name: t('symbols.arpeggio-up'), glyph: '', meaning: t('symbols.arpeggio-up-meaning'), svg: arpeggioSvg('up') },
+        { id: 'arpeggio-down', name: t('symbols.arpeggio-down'), glyph: '', meaning: t('symbols.arpeggio-down-meaning'), svg: arpeggioSvg('down') }
       ]
     },
     {
