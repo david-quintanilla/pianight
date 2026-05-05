@@ -44,13 +44,16 @@
 
       <article class="px-2">
         <div class="overflow-x-auto scroll-elegant -mx-2 px-2">
-          <StavesStaffPiano
-            :whites="pianoWhites"
-            :highlighted="highlighted"
-            :sound-enabled="soundEnabled"
-            @hover="setHighlight"
-            @select="setHighlight"
-          />
+          <div class="flex gap-1 mx-auto" :style="{ width: 'fit-content' }">
+            <PianoKeyboardOctave
+              v-for="oct in [2, 3, 4, 5]"
+              :key="oct"
+              :octave="oct"
+              :selected-midis="highlightedMidi !== null ? [highlightedMidi] : []"
+              @toggle-white="onPianoNote"
+              @toggle-black="onPianoNote"
+            />
+          </div>
         </div>
       </article>
     </div>
@@ -69,29 +72,30 @@ import {
 } from '~/components/ui/sheet'
 import type { StaffNote } from '~/composables/useStaff'
 
-const { buildNote, trebleNotes, bassNotes } = useStaff()
-const { preload } = useAudio()
+const { trebleNotes, bassNotes, buildNote, buildSharp } = useStaff()
+const { preload, playMidi } = useAudio()
 
 const soundEnabled = ref(true)
 
 onMounted(() => {
   preload()
 })
-const highlighted = ref<StaffNote | null>(null)
 
-const pianoWhites = computed(() => {
-  const letters: ('C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B')[] = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
-  const result: StaffNote[] = []
-  for (const octave of [2, 3, 4, 5]) {
-    for (const letter of letters) {
-      result.push(buildNote(letter, octave))
-    }
-  }
-  result.push(buildNote('C', 6))
-  return result
-})
+const highlighted = ref<StaffNote | null>(null)
+const highlightedMidi = computed(() => highlighted.value?.midi ?? null)
 
 function setHighlight(note: StaffNote | null) {
   highlighted.value = note
+}
+
+type Letter = 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B'
+
+function onPianoNote(payload: { letter: Letter, octave: number, midi: number }) {
+  const isSharp = payload.midi !== buildNote(payload.letter, payload.octave).midi
+  const note = isSharp
+    ? buildSharp(payload.letter, payload.octave)
+    : buildNote(payload.letter, payload.octave)
+  setHighlight(note)
+  if (soundEnabled.value) playMidi(note.midi, 1500)
 }
 </script>

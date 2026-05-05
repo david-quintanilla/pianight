@@ -103,6 +103,11 @@ const menu = computed(() => [
     label: i18n.t('staves'),
     route: '/staves',
     isActive: route.path.includes('/staves')
+  },
+  {
+    label: i18n.t('builder'),
+    route: '/builder',
+    isActive: route.path.includes('/builder')
   }
 ])
 
