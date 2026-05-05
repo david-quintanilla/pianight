@@ -9,19 +9,19 @@
     />
     <ChordSection
       v-if="currentChord?.firstInversion"
-      title="Primera inversión"
+      :title="$t('chord.first-inversion')"
       :formula="chords?.guide.firstInversion"
       :octaves="currentChord.firstInversion"
     />
     <ChordSection
       v-if="currentChord?.secondInversion"
-      title="Segunda inversión"
+      :title="$t('chord.second-inversion')"
       :formula="chords?.guide.secondInversion"
       :octaves="currentChord.secondInversion"
     />
     <ChordSection
       v-if="currentChord?.thirdInversion"
-      title="Tercera inversión"
+      :title="$t('chord.third-inversion')"
       :formula="chords?.guide.thirdInversion"
       :octaves="currentChord.thirdInversion"
     />

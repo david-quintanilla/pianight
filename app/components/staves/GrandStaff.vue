@@ -4,7 +4,7 @@
       :viewBox="`0 0 ${width} ${height}`"
       :style="{ width: '100%', height: 'auto' }"
       role="img"
-      aria-label="Gran pentagrama"
+      :aria-label="$t('page.staves-title')"
     >
       <!-- Línea vertical inicial -->
       <line

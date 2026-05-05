@@ -6,13 +6,13 @@
         <header class="flex flex-wrap items-end justify-between gap-6">
           <div class="space-y-3">
             <p class="text-[11px] uppercase tracking-[0.18em] text-aqua-300/60 font-medium">
-              Lectura musical
+              {{ $t('page.staves-label') }}
             </p>
             <h1 class="font-display text-4xl lg:text-5xl font-semibold tracking-tight text-paper leading-[1.05]">
-              Gran pentagrama
+              {{ $t('page.staves-title') }}
             </h1>
             <p class="text-sm text-cyan-100/55 max-w-xl leading-relaxed">
-              Pasa el ratón por una nota o por una tecla. Escucha, mira la posición y conecta los dos lenguajes.
+              {{ $t('page.staves-description') }}
             </p>
           </div>
 
@@ -24,7 +24,7 @@
             >
               <Volume2 v-if="soundEnabled" :size="14" />
               <VolumeX v-else :size="14" />
-              {{ soundEnabled ? 'Sonido' : 'Silencio' }}
+              {{ soundEnabled ? $t('page.staves-sound') : $t('page.staves-mute') }}
             </button>
           </div>
         </header>

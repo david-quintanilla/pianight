@@ -2,17 +2,17 @@
   <aside class="flex flex-col h-full bg-ink-900/60 border border-white/5 rounded-2xl overflow-hidden backdrop-blur">
     <header class="px-6 py-5 border-b border-white/5">
       <h2 class="font-display text-xl font-semibold tracking-tight text-paper">
-        Simbología
+        {{ $t('symbol-glossary.title') }}
       </h2>
       <p class="text-xs text-cyan-100/40 mt-1 leading-relaxed">
-        El vocabulario para leer una partitura
+        {{ $t('symbol-glossary.description') }}
       </p>
 
       <div class="relative mt-4">
         <input
           v-model="query"
           type="text"
-          placeholder="Buscar símbolo…"
+          :placeholder="$t('symbol-glossary.search')"
           class="w-full bg-ink-800 border border-white/5 rounded-lg pl-9 pr-3 py-2 text-sm text-paper placeholder:text-cyan-100/30 focus:outline-none focus:border-aqua-400/40 focus:bg-ink-800 transition"
         >
         <Search
@@ -74,7 +74,7 @@
         v-if="filteredCategories.length === 0"
         class="px-6 py-12 text-center text-sm text-cyan-100/30"
       >
-        Sin resultados
+        {{ $t('symbol-glossary.no-results') }}
       </div>
     </div>
 
@@ -107,13 +107,13 @@ import type { MusicSymbol } from '~/composables/useSymbols'
 const { categories } = useSymbols()
 
 const query = ref('')
-const open = ref<Set<string>>(new Set(categories.map(c => c.id)))
+const open = ref<Set<string>>(new Set(categories.value.map(c => c.id)))
 const active = ref<MusicSymbol | null>(null)
 
 const filteredCategories = computed(() => {
   const q = query.value.trim().toLowerCase()
-  if (!q) return categories
-  return categories
+  if (!q) return categories.value
+  return categories.value
     .map(cat => ({
       ...cat,
       symbols: cat.symbols.filter(s =>
@@ -136,4 +136,10 @@ function toggle(id: string) {
 function setActive(sym: MusicSymbol) {
   active.value = active.value?.id === sym.id ? null : sym
 }
+
+watch(categories, (next) => {
+  if (!active.value) return
+  const found = next.flatMap(c => c.symbols).find(s => s.id === active.value!.id)
+  active.value = found ?? null
+})
 </script>
