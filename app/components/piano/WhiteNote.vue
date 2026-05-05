@@ -1,9 +1,12 @@
 <template>
   <div
-    class="h-full text-black font-bold flex flex-col items-center justify-end w-10 lg:w-11 xl:w-13 relative pb-3"
-    :class="props.isSelected ? 'bg-cyan-500' : 'bg-white'"
+    class="relative flex flex-col items-center justify-end h-full w-10 lg:w-11 xl:w-13 pb-3 rounded-b-md transition-all duration-150"
+    :class="props.isSelected ? 'key-active-gradient' : 'key-white'"
   >
-    <p class="text-xs">
+    <p
+      class="text-xs font-display tracking-wide"
+      :class="props.isSelected ? 'text-ink-950 font-semibold' : 'text-ink-900/70 font-medium'"
+    >
       {{ props.note }}
     </p>
     <slot />

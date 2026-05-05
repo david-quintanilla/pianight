@@ -1,5 +1,3 @@
-import type { TabsItem } from '@nuxt/ui'
-
 interface OctaveAssigment {
   firstOctave: number[]
   secondOctave: number[]
@@ -19,7 +17,7 @@ interface Note {
   name: string
 }
 
-interface Chords {
+interface ChordType {
   label: string
   prefix: string
   chords: Chord[]
@@ -32,13 +30,13 @@ interface Chords {
 }
 
 interface State {
-  selectedNote: Note,
+  selectedNote: Note
   selectChordIndex: number
 }
 
 interface Compute {
-  selectedChords: ComputedRef<Chords>
-  chordTypes: ComputedRef<TabsItem[]>
+  selectedChords: ComputedRef<ChordType>
+  chordTypes: ComputedRef<ChordType[]>
 }
 
 export const usePianoStore = defineStore('pianoStore', () => {
@@ -46,21 +44,16 @@ export const usePianoStore = defineStore('pianoStore', () => {
 
   const state: State = reactive({
     selectChordIndex: 0,
-    selectedNote: notes.noteList.value[0],
-    selectedChords: null
+    selectedNote: notes.noteList.value[0]
   })
 
   const compute: Compute = {
     selectedChords: computed(() => {
-      return compute.chordTypes.value[state.selectChordIndex] as Chords
+      return compute.chordTypes.value[state.selectChordIndex] as ChordType
     }),
 
-    chordTypes: computed<TabsItem[]>(() => {
-      return notes.chordTypes.map(chord => ({
-        ...chord,
-        icon: 'entypo:note',
-        slot: chord.prefix
-      }))
+    chordTypes: computed<ChordType[]>(() => {
+      return notes.chordTypes
     })
   }
 

@@ -1,69 +1,39 @@
 <template>
-  <div class="flex flex-col gap-4">
-    <div v-if="currentChord?.fundamental">
-      <p class="flex justify-center text-2xl font-extrabold gap-2 items-center pb-1">
-        {{ selectedNote?.name }} {{ chords?.prefix }}
-        <UBadge color="neutral">
-          {{ chords?.guide.fundamental }}
-        </UBadge>
-      </p>
-
-      <div class="flex justify-center gap-1">
-        <PianoKeyboardOctave :selected-notes="currentChord.fundamental.firstOctave" />
-        <PianoKeyboardOctave :selected-notes="currentChord.fundamental.secondOctave" />
-        <PianoKeyboardOctave :selected-notes="currentChord.fundamental.thirdOctave" />
-      </div>
-    </div>
-
-    <div v-if="currentChord?.firstInversion">
-      <p class="flex justify-center text-2xl font-extrabold gap-2 items-center pb-1">
-        Primera inversión
-        <UBadge color="neutral">
-          {{ chords?.guide.firstInversion }}
-        </UBadge>
-      </p>
-      <div class="flex justify-center gap-1">
-        <PianoKeyboardOctave :selected-notes="currentChord.firstInversion.firstOctave" />
-        <PianoKeyboardOctave :selected-notes="currentChord.firstInversion.secondOctave" />
-        <PianoKeyboardOctave :selected-notes="currentChord.firstInversion.thirdOctave" />
-      </div>
-    </div>
-
-    <div v-if="currentChord?.secondInversion">
-      <p class="flex justify-center items-center text-2xl font-extrabold gap-2 pb-1">
-        Segunda inversión
-        <UBadge color="neutral">
-          {{ chords?.guide.secondInversion }}
-        </UBadge>
-      </p>
-      <div class="flex justify-center gap-1">
-        <PianoKeyboardOctave :selected-notes="currentChord.secondInversion.firstOctave" />
-        <PianoKeyboardOctave :selected-notes="currentChord.secondInversion.secondOctave" />
-        <PianoKeyboardOctave :selected-notes="currentChord.secondInversion.thirdOctave" />
-      </div>
-    </div>
-
-    <div v-if="currentChord?.thirdInversion">
-      <p class="flex justify-center items-center text-2xl font-extrabold gap-2 pb-1">
-        Tercera inversión
-        <UBadge color="neutral">
-          {{ chords?.guide.thirdInversion }}
-        </UBadge>
-      </p>
-      <div class="flex justify-center gap-1">
-        <PianoKeyboardOctave :selected-notes="currentChord.thirdInversion.firstOctave" />
-        <PianoKeyboardOctave :selected-notes="currentChord.thirdInversion.secondOctave" />
-        <PianoKeyboardOctave :selected-notes="currentChord.thirdInversion.thirdOctave" />
-      </div>
-    </div>
+  <div class="flex flex-col gap-8">
+    <ChordSection
+      v-if="currentChord?.fundamental"
+      :title="`${selectedNote?.name} ${chords?.prefix}`"
+      :formula="chords?.guide.fundamental"
+      title-style="hero"
+      :octaves="currentChord.fundamental"
+    />
+    <ChordSection
+      v-if="currentChord?.firstInversion"
+      title="Primera inversión"
+      :formula="chords?.guide.firstInversion"
+      :octaves="currentChord.firstInversion"
+    />
+    <ChordSection
+      v-if="currentChord?.secondInversion"
+      title="Segunda inversión"
+      :formula="chords?.guide.secondInversion"
+      :octaves="currentChord.secondInversion"
+    />
+    <ChordSection
+      v-if="currentChord?.thirdInversion"
+      title="Tercera inversión"
+      :formula="chords?.guide.thirdInversion"
+      :octaves="currentChord.thirdInversion"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
+import ChordSection from './ChordSection.vue'
+
 const pianoStore = usePianoStore()
 
 const chords = computed(() => pianoStore.compute.selectedChords)
-
 const selectedNote = computed(() => pianoStore.state.selectedNote)
 
 const currentChord = computed(() => {

@@ -14,9 +14,7 @@
         />
       </PianoWhiteNote>
     </div>
-    <p class="flex border-1 border-t-0 border-cyan-500 justify-center font-extrabold text-1xl">
-      Octava
-    </p>
+    <span class="h-px bg-gradient-to-r from-transparent via-aqua-400/20 to-transparent" />
   </div>
 </template>
 

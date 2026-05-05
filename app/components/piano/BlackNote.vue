@@ -1,13 +1,13 @@
 <template>
   <div
-    class="rounded-b-md flex flex-col items-center justify-end w-10 h-22 absolute top-0 -right-5 z-10 pb-2"
-    :class="props.isSelected ? 'bg-cyan-500 border-3 border-t-0' : 'bg-black'"
+    class="rounded-b-md flex flex-col items-center justify-end w-10 h-22 absolute top-0 -right-5 z-10 pb-2 transition-all duration-150"
+    :class="props.isSelected ? 'key-active-gradient ring-1 ring-cyan-200/60' : 'key-black'"
   >
     <span
       v-for="(note, index) in props.notes"
       :key="index"
-      class="font-bold text-xs rounded-full h-6 w-8 flex justify-center items-center"
-      :class="props.isSelected ? 'text-black' : 'text-white'"
+      class="font-display text-[10.5px] tracking-wide rounded-full h-5 w-7 flex justify-center items-center"
+      :class="props.isSelected ? 'text-ink-950 font-semibold' : 'text-paper/85 font-medium'"
     >
       {{ note }}
     </span>

@@ -21,17 +21,23 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
     '@nuxt/fonts',
-    '@nuxt/icon',
-    '@nuxt/image',
-    '@nuxt/scripts',
-    '@nuxt/test-utils',
     '@nuxt/content',
-    '@nuxt/ui',
     '@nuxtjs/i18n',
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
-    'nuxt-svgo'
+    'nuxt-svgo',
+    'shadcn-nuxt'
   ],
+  shadcn: {
+    prefix: '',
+    componentDir: './app/components/ui'
+  },
+  fonts: {
+    families: [
+      { name: 'Inter', provider: 'google', weights: [400, 500, 600, 700] },
+      { name: 'Fraunces', provider: 'google', weights: [400, 500, 600, 700, 800], italic: true }
+    ]
+  },
   i18n: {
     restructureDir: 'app',
     langDir: 'i18n/locales',
