@@ -166,6 +166,9 @@
             :time-signature="builder.currentSong.timeSignature"
             :selected-measure-id="selectedMeasureId"
             :playing-measure-idx="playback.currentMeasureIdx.value"
+            :playhead-ms="playback.playheadMs.value"
+            :measure-starts-ms="playback.measureStartsMs.value"
+            :measure-durations-ms="playback.measureDurationsMs.value"
             @select-measure="onSelectMeasure"
           />
         </div>

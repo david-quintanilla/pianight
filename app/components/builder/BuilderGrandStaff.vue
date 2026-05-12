@@ -125,16 +125,12 @@
             :y="trebleTop - lineGap * 2"
             :width="measureWidth"
             :height="(bassTop + 4 * lineGap + lineGap * 2) - (trebleTop - lineGap * 2)"
-            :fill="m.number - 1 === playingMeasureIdx
-              ? 'rgba(103, 232, 249, 0.10)'
-              : selectedMeasureId === m.id
-                ? 'rgba(252, 211, 77, 0.06)'
-                : 'transparent'"
-            :stroke="m.number - 1 === playingMeasureIdx
-              ? 'rgba(103, 232, 249, 0.55)'
-              : selectedMeasureId === m.id
-                ? 'rgba(252, 211, 77, 0.35)'
-                : 'transparent'"
+            :fill="selectedMeasureId === m.id
+              ? 'rgba(252, 211, 77, 0.06)'
+              : 'transparent'"
+            :stroke="selectedMeasureId === m.id
+              ? 'rgba(252, 211, 77, 0.35)'
+              : 'transparent'"
             stroke-width="1"
             class="cursor-pointer hover:fill-aqua-400/[0.04] transition-colors"
             @click="emit('select-measure', m.id)"
@@ -290,6 +286,25 @@
           stroke-width="1.5"
         />
       </g>
+
+      <!-- Playhead: línea vertical que sigue la reproducción -->
+      <g v-if="playhead" class="pointer-events-none">
+        <line
+          :x1="playhead.x"
+          :x2="playhead.x"
+          :y1="playhead.yTop"
+          :y2="playhead.yBottom"
+          stroke="rgb(103, 232, 249)"
+          stroke-width="1.5"
+          opacity="0.9"
+        />
+        <circle
+          :cx="playhead.x"
+          :cy="playhead.yTop"
+          r="3.5"
+          fill="rgb(103, 232, 249)"
+        />
+      </g>
     </svg>
   </div>
 </template>
@@ -303,11 +318,17 @@ interface Props {
   timeSignature: string
   selectedMeasureId?: string | null
   playingMeasureIdx?: number
+  playheadMs?: number
+  measureStartsMs?: number[]
+  measureDurationsMs?: number[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
   selectedMeasureId: null,
-  playingMeasureIdx: -1
+  playingMeasureIdx: -1,
+  playheadMs: 0,
+  measureStartsMs: () => [],
+  measureDurationsMs: () => []
 })
 
 const emit = defineEmits<{
@@ -733,6 +754,43 @@ const systems = computed<System[]>(() => {
 const totalHeight = computed(() => {
   if (systems.value.length === 0) return systemHeight + systemTopPadding * 2
   return systemTopPadding * 2 + systems.value.length * systemHeight + (systems.value.length - 1) * systemSpacing
+})
+
+interface PlayheadPos {
+  x: number
+  yTop: number
+  yBottom: number
+}
+
+const playhead = computed<PlayheadPos | null>(() => {
+  const idx = props.playingMeasureIdx
+  if (idx < 0) return null
+  const starts = props.measureStartsMs
+  const durs = props.measureDurationsMs
+  if (!starts.length || idx >= starts.length) return null
+
+  // Localizar el sistema y la PlacedMeasure activos
+  let activeMeasure: PlacedMeasure | null = null
+  let activeSystem: System | null = null
+  for (const sys of systems.value) {
+    const m = sys.measures.find(pm => pm.number - 1 === idx)
+    if (m) {
+      activeMeasure = m
+      activeSystem = sys
+      break
+    }
+  }
+  if (!activeMeasure || !activeSystem) return null
+
+  const elapsedInMeasure = Math.max(0, props.playheadMs - starts[idx]!)
+  const dur = durs[idx] ?? 1
+  const progress = Math.min(1, elapsedInMeasure / dur)
+
+  return {
+    x: activeMeasure.x + progress * measureWidth.value,
+    yTop: activeSystem.y + trebleTop - lineGap * 2,
+    yBottom: activeSystem.y + bassTop + 4 * lineGap + lineGap * 2
+  }
 })
 
 function arpeggioPath(height: number): string {
