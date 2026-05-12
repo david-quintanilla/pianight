@@ -612,7 +612,7 @@ function buildPlacedNotes(m: Measure, measureX: number): { placed: PlacedNote[],
           accidental: note.accidental,
           filled: visuals.filled,
           hasStem: visuals.hasStem,
-          stemUp: visuals.stemUp,
+          stemUp,
           // Si la nota está dentro de un beam, NO dibujamos banderola individual
           flagGlyph: inBeam ? null : visuals.flagGlyph,
           isRest: false,
