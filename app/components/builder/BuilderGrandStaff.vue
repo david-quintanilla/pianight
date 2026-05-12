@@ -252,6 +252,14 @@
                 :stroke="paperColor"
                 stroke-width="1.4"
               />
+
+              <circle
+                v-if="placed.dotted"
+                :cx="noteRadius + 5"
+                :cy="0"
+                :r="2.2"
+                :fill="paperColor"
+              />
             </template>
           </g>
 
@@ -406,6 +414,7 @@ interface PlacedNote {
   isRest: boolean
   restGlyph: string | null
   stemEndY?: number
+  dotted: boolean
 }
 
 const REST_GLYPHS: Record<Duration, string> = {
@@ -582,7 +591,8 @@ function buildPlacedNotes(m: Measure, measureX: number): { placed: PlacedNote[],
           stemUp: false,
           flagGlyph: null,
           isRest: true,
-          restGlyph: REST_GLYPHS[info.duration]
+          restGlyph: REST_GLYPHS[info.duration],
+          dotted: !!info.notes[0]?.dotted
         })
         return
       }
@@ -606,7 +616,8 @@ function buildPlacedNotes(m: Measure, measureX: number): { placed: PlacedNote[],
           // Si la nota está dentro de un beam, NO dibujamos banderola individual
           flagGlyph: inBeam ? null : visuals.flagGlyph,
           isRest: false,
-          restGlyph: null
+          restGlyph: null,
+          dotted: !!note.dotted
         })
       })
 

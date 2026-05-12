@@ -161,6 +161,7 @@ interface Props {
   slots: BuilderNote[][]
   timeSignature: string
   selectedDuration: Duration
+  selectedDotted: boolean
   selectedAccidental: 'sharp' | 'flat' | null
   capacityOverride?: number | null
 }
@@ -174,7 +175,7 @@ const emit = defineEmits<{
   'toggle-arpeggio': [slotIdx: number]
   'move-slot': [payload: { from: number, to: number }]
   'update-slot': [payload: { slotIdx: number, notes: BuilderNote[] }]
-  'sync-controls': [payload: { duration: Duration, accidental: 'sharp' | 'flat' | null }]
+  'sync-controls': [payload: { duration: Duration, dotted: boolean, accidental: 'sharp' | 'flat' | null }]
 }>()
 
 const { t } = useI18n()
@@ -246,10 +247,18 @@ function onSlotClick(idx: number) {
     midi: n.midi,
     accidental: n.accidental
   }))
-  // Empujar el piano para que la octava más grave del slot quede visible
-  startOctave.value = Math.max(1, Math.min(5, Math.min(...slot.map(n => n.octave)) - 1))
+  // Centrar el piano sobre las notas del slot si quedan fuera del rango visible
+  const octs = slot.map(n => n.octave)
+  const minOct = Math.min(...octs)
+  const maxOct = Math.max(...octs)
+  const visibleEnd = startOctave.value + visibleOctaves - 1
+  if (minOct < startOctave.value || maxOct > visibleEnd) {
+    const centered = Math.round((minOct + maxOct) / 2) - Math.floor(visibleOctaves / 2)
+    startOctave.value = Math.max(1, Math.min(7 - visibleOctaves, centered))
+  }
   emit('sync-controls', {
     duration: first.duration,
+    dotted: !!first.dotted,
     accidental: first.accidental
   })
 }
@@ -292,7 +301,11 @@ const capacity = computed(() => props.capacityOverride ?? measureCapacityBeats(p
 const usedBeats = computed(() => slotsBeats(props.slots))
 const remaining = computed(() => capacity.value - usedBeats.value)
 const atCapacity = computed(() => remaining.value <= 0.001)
-const full = computed(() => remaining.value < DURATION_BEATS[props.selectedDuration] - 0.001)
+const selectedBeats = computed(() => {
+  const base = DURATION_BEATS[props.selectedDuration]
+  return props.selectedDotted ? base * 1.5 : base
+})
+const full = computed(() => remaining.value < selectedBeats.value - 0.001)
 
 function stepOf(l: Letter, o: number): number {
   return o * 7 + LETTERS.indexOf(l)
@@ -307,7 +320,8 @@ function buildNotes(): BuilderNote[] {
     midi: n.midi,
     step: stepOf(n.letter, n.octave),
     accidental: n.accidental,
-    duration: props.selectedDuration
+    duration: props.selectedDuration,
+    dotted: props.selectedDotted || undefined
   }))
 }
 

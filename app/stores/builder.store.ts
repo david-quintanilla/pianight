@@ -11,6 +11,11 @@ export const DURATION_BEATS: Record<Duration, number> = {
   '16': 0.25
 }
 
+export function noteBeats(note: Pick<BuilderNote, 'duration' | 'dotted'>): number {
+  const base = DURATION_BEATS[note.duration]
+  return note.dotted ? base * 1.5 : base
+}
+
 export function measureCapacityBeats(timeSignature: string): number {
   const [topStr, bottomStr] = timeSignature.split('/')
   const top = Number(topStr) || 4
@@ -21,7 +26,7 @@ export function measureCapacityBeats(timeSignature: string): number {
 export function slotsBeats(slots: BuilderNote[][]): number {
   return slots.reduce((sum, slot) => {
     const first = slot[0]
-    return first ? sum + DURATION_BEATS[first.duration] : sum
+    return first ? sum + noteBeats(first) : sum
   }, 0)
 }
 
@@ -33,6 +38,7 @@ export interface BuilderNote {
   step: number
   accidental: Accidental
   duration: Duration
+  dotted?: boolean
   isRest?: boolean
   arpeggio?: boolean
   arpeggioDir?: 'up' | 'down'
@@ -162,7 +168,7 @@ export const useBuilderStore = defineStore('builderStore', () => {
     const first = notes[0]!
     const slots = hand === 'treble' ? measure.treble : measure.bass
     const used = slotsBeats(slots)
-    const slotBeats = DURATION_BEATS[first.duration]
+    const slotBeats = noteBeats(first)
     const capacity = effectiveCapacity(measure, song.timeSignature)
 
     if (used + slotBeats > capacity + 0.001) return false
@@ -207,11 +213,11 @@ export const useBuilderStore = defineStore('builderStore', () => {
     if (!old) return false
 
     const first = notes[0]!
-    const newBeats = DURATION_BEATS[first.duration]
+    const newBeats = noteBeats(first)
     const otherBeats = slots.reduce((sum, sl, i) => {
       if (i === slotIdx) return sum
       const f = sl[0]
-      return f ? sum + DURATION_BEATS[f.duration] : sum
+      return f ? sum + noteBeats(f) : sum
     }, 0)
     const capacity = effectiveCapacity(measure, song.timeSignature)
     if (otherBeats + newBeats > capacity + 0.001) return false

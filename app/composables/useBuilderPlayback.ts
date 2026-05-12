@@ -1,5 +1,5 @@
 import type { Song } from '~/stores/builder.store'
-import { DURATION_BEATS } from '~/stores/builder.store'
+import { noteBeats } from '~/stores/builder.store'
 
 export function useBuilderPlayback() {
   const { playMidi, preload } = useAudio()
@@ -43,7 +43,7 @@ export function useBuilderPlayback() {
           const first = slot[0]
           if (!first) return
           const slotStartMs = measureStartMs + beatsCursor * beatMs
-          const slotDurMs = DURATION_BEATS[first.duration] * beatMs
+          const slotDurMs = noteBeats(first) * beatMs
 
           if (!first.isRest) {
             if (first.arpeggio && slot.length >= 2) {
@@ -65,7 +65,7 @@ export function useBuilderPlayback() {
             }
           }
 
-          beatsCursor += DURATION_BEATS[first.duration]
+          beatsCursor += noteBeats(first)
         })
       })
 
@@ -73,8 +73,8 @@ export function useBuilderPlayback() {
       const fullCap = (Number(song.timeSignature.split('/')[0]) || 4) * 4 / (Number(song.timeSignature.split('/')[1]) || 4)
       const measureBeats = m
         ? (m.pickupBeats ?? Math.max(
-          m.treble.reduce((s, sl) => s + (sl[0] ? DURATION_BEATS[sl[0].duration] : 0), 0),
-          m.bass.reduce((s, sl) => s + (sl[0] ? DURATION_BEATS[sl[0].duration] : 0), 0),
+          m.treble.reduce((s, sl) => s + (sl[0] ? noteBeats(sl[0]) : 0), 0),
+          m.bass.reduce((s, sl) => s + (sl[0] ? noteBeats(sl[0]) : 0), 0),
           fullCap
         ))
         : fullCap

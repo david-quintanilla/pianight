@@ -58,6 +58,8 @@
   "page.builder-beats": "tiempos",
   "page.builder-full": "Compás lleno",
   "page.builder-full-hint": "Este compás ya está completo. Añade más compases o reduce la duración de alguna nota para meter más.",
+  "page.builder-dotted": "Puntillo",
+  "page.builder-dotted-hint": "El puntillo aumenta la duración de la nota en un 50%.",
   "page.builder-dur-w": "Redonda",
   "page.builder-dur-h": "Blanca",
   "page.builder-dur-q": "Negra",

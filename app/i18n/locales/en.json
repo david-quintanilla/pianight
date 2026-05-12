@@ -58,6 +58,8 @@
   "page.builder-beats": "beats",
   "page.builder-full": "Measure full",
   "page.builder-full-hint": "This measure is full. Add more measures or shorten a note's duration to fit more.",
+  "page.builder-dotted": "Dotted",
+  "page.builder-dotted-hint": "A dot adds 50% to the note's duration.",
   "page.builder-dur-w": "Whole",
   "page.builder-dur-h": "Half",
   "page.builder-dur-q": "Quarter",

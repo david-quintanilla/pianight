@@ -182,10 +182,12 @@
       :measure-number="selectedMeasureNumber"
       :time-signature="builder.currentSong?.timeSignature ?? '4/4'"
       :duration="duration"
+      :dotted="dotted"
       :accidental="accidental"
       :hand="hand"
       @update:open="sheetOpen = $event"
       @update:duration="duration = $event"
+      @update:dotted="dotted = $event"
       @update:accidental="accidental = $event"
       @update:hand="hand = $event"
       @add-chord="onAddChord"
@@ -235,6 +237,7 @@ const sheetOpen = ref(false)
 const selectedMeasureId = ref<string | null>(null)
 
 const duration = ref<Duration>('q')
+const dotted = ref(false)
 const accidental = ref<'sharp' | 'flat' | null>(null)
 const hand = ref<Hand>('treble')
 

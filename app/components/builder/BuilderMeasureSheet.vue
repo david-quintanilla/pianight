@@ -1,6 +1,6 @@
 <template>
   <Sheet :open="open" @update:open="onOpenChange">
-    <SheetContent side="right" class="w-full sm:max-w-md p-0 flex flex-col">
+    <SheetContent side="right" class="w-full sm:max-w-lg lg:max-w-xl p-0 flex flex-col">
       <SheetHeader class="px-6 pt-6 pb-4 border-b border-white/5">
         <SheetTitle class="font-display text-paper">
           {{ $t('page.builder-sheet-title', { n: measureNumber }) }}
@@ -16,20 +16,41 @@
           <label class="text-[11px] uppercase tracking-[0.18em] text-paper/40">
             {{ $t('page.builder-duration') }}
           </label>
-          <ToggleGroup
-            type="single"
-            :model-value="duration"
-            class="justify-start"
-            @update:model-value="(v) => v && emit('update:duration', v as Duration)"
-          >
-            <ToggleGroupItem
-              v-for="d in DURATIONS"
-              :key="d.value"
-              :value="d.value"
-              class="font-music text-lg"
-              :title="$t(d.labelKey)"
-            >{{ d.glyph }}</ToggleGroupItem>
-          </ToggleGroup>
+          <div class="flex items-center gap-2 flex-wrap">
+            <ToggleGroup
+              type="single"
+              :model-value="duration"
+              class="justify-start"
+              @update:model-value="(v) => v && emit('update:duration', v as Duration)"
+            >
+              <ToggleGroupItem
+                v-for="d in DURATIONS"
+                :key="d.value"
+                :value="d.value"
+                class="font-music text-2xl leading-none flex items-center justify-center"
+                :title="$t(d.labelKey)"
+              >
+                <span
+                  class="inline-block"
+                  :style="{ transform: `translateY(${d.yOffset})` }"
+                >{{ d.glyph }}</span>
+              </ToggleGroupItem>
+            </ToggleGroup>
+            <button
+              type="button"
+              :class="[
+                'h-9 px-3 rounded-md border text-sm font-mono transition flex items-center gap-1.5',
+                dotted
+                  ? 'border-aqua-400/40 bg-aqua-400/10 text-aqua-200'
+                  : 'border-white/10 bg-transparent text-paper/60 hover:text-paper hover:border-white/20'
+              ]"
+              :title="$t('page.builder-dotted-hint')"
+              @click="emit('update:dotted', !dotted)"
+            >
+              <span class="text-base leading-none">·</span>
+              {{ $t('page.builder-dotted') }}
+            </button>
+          </div>
         </section>
 
         <!-- Accidental -->
@@ -114,6 +135,7 @@
               :slots="measure.bass"
               :time-signature="timeSignature"
               :selected-duration="duration"
+              :selected-dotted="dotted"
               :selected-accidental="accidental"
               :capacity-override="measure.pickupBeats ?? null"
               @add="(notes) => emit('add-chord', { hand: 'bass', notes })"
@@ -132,6 +154,7 @@
               :slots="measure.treble"
               :time-signature="timeSignature"
               :selected-duration="duration"
+              :selected-dotted="dotted"
               :selected-accidental="accidental"
               :capacity-override="measure.pickupBeats ?? null"
               @add="(notes) => emit('add-chord', { hand: 'treble', notes })"
@@ -180,6 +203,7 @@ interface Props {
   measureNumber: number
   timeSignature: string
   duration: Duration
+  dotted: boolean
   accidental: 'sharp' | 'flat' | null
   hand: Hand
 }
@@ -189,6 +213,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   'update:open': [value: boolean]
   'update:duration': [value: Duration]
+  'update:dotted': [value: boolean]
   'update:accidental': [value: 'sharp' | 'flat' | null]
   'update:hand': [value: Hand]
   'add-chord': [payload: { hand: Hand, notes: BuilderNote[] }]
@@ -208,8 +233,9 @@ function onTogglePickup() {
   else emit('set-pickup', 1)
 }
 
-function onSyncControls(payload: { duration: Duration, accidental: 'sharp' | 'flat' | null }) {
+function onSyncControls(payload: { duration: Duration, dotted: boolean, accidental: 'sharp' | 'flat' | null }) {
   emit('update:duration', payload.duration)
+  emit('update:dotted', payload.dotted)
   emit('update:accidental', payload.accidental)
 }
 
@@ -220,11 +246,11 @@ function onOpenChange(value: boolean) {
 const sharpGlyph = String.fromCodePoint(0xE262)
 const flatGlyph = String.fromCodePoint(0xE260)
 
-const DURATIONS: { value: Duration, glyph: string, labelKey: string }[] = [
-  { value: 'w', glyph: String.fromCodePoint(0xE1D2), labelKey: 'page.builder-dur-w' },
-  { value: 'h', glyph: String.fromCodePoint(0xE1D3), labelKey: 'page.builder-dur-h' },
-  { value: 'q', glyph: String.fromCodePoint(0xE1D5), labelKey: 'page.builder-dur-q' },
-  { value: '8', glyph: String.fromCodePoint(0xE1D7), labelKey: 'page.builder-dur-8' },
-  { value: '16', glyph: String.fromCodePoint(0xE1D9), labelKey: 'page.builder-dur-16' }
+const DURATIONS: { value: Duration, glyph: string, labelKey: string, yOffset: string }[] = [
+  { value: 'w', glyph: String.fromCodePoint(0xE1D2), labelKey: 'page.builder-dur-w', yOffset: '-0.05em' },
+  { value: 'h', glyph: String.fromCodePoint(0xE1D3), labelKey: 'page.builder-dur-h', yOffset: '0.3em' },
+  { value: 'q', glyph: String.fromCodePoint(0xE1D5), labelKey: 'page.builder-dur-q', yOffset: '0.3em' },
+  { value: '8', glyph: String.fromCodePoint(0xE1D7), labelKey: 'page.builder-dur-8', yOffset: '0.3em' },
+  { value: '16', glyph: String.fromCodePoint(0xE1D9), labelKey: 'page.builder-dur-16', yOffset: '0.3em' }
 ]
 </script>
