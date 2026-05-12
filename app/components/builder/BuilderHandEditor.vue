@@ -17,27 +17,14 @@
       <span v-else-if="full" class="text-rose-300/80">{{ $t('page.builder-no-fit') }}</span>
     </div>
 
-    <!-- Mini piano (multi-octava, usa KeyboardOctave unificado) -->
+    <!-- Mini piano: scroll horizontal con todas las octavas -->
     <div class="rounded-lg border border-white/10 bg-ink-900/40 overflow-hidden">
-      <div class="flex items-center justify-between px-3 py-2 border-b border-white/5 text-[11px]">
-        <span class="uppercase tracking-[0.18em] text-paper/40">{{ $t('page.builder-pitch') }}</span>
-        <div class="flex items-center gap-2">
-          <Button variant="outline" size="icon" class="h-6 w-6" @click="shiftOctaves(-1)">
-            <ChevronLeft :size="13" />
-          </Button>
-          <span class="text-paper/50 font-mono">
-            {{ $t('page.builder-octave') }} {{ visibleOctaves > 1 ? `${startOctave}–${startOctave + visibleOctaves - 1}` : startOctave }}
-          </span>
-          <Button variant="outline" size="icon" class="h-6 w-6" @click="shiftOctaves(1)">
-            <ChevronRight :size="13" />
-          </Button>
-        </div>
-      </div>
-      <div class="overflow-x-auto scroll-elegant p-2">
-        <div class="flex gap-1 mx-auto" :style="{ width: 'fit-content' }">
+      <div ref="keyboardScrollRef" class="overflow-x-auto scroll-elegant p-2">
+        <div class="flex gap-1" :style="{ width: 'fit-content' }">
           <PianoKeyboardOctave
-            v-for="oct in visibleOctaveList"
+            v-for="oct in OCTAVE_RANGE"
             :key="oct"
+            :ref="(el) => registerOctaveRef(oct, el)"
             :octave="oct"
             :selected-midis="selectedMidis"
             @toggle-white="onPianoToggle"
@@ -148,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowDown, ArrowUp, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Pause, Plus, Trash2, TriangleAlert, Waves } from 'lucide-vue-next'
+import { ArrowDown, ArrowUp, ChevronDown, ChevronUp, Pause, Plus, Trash2, TriangleAlert, Waves } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
 import type { BuilderNote, Duration, Hand } from '~/stores/builder.store'
@@ -189,23 +176,42 @@ interface SelectedNote {
   accidental: 'sharp' | 'flat' | null
 }
 
-const visibleOctaves = 1
-const startOctave = ref(props.hand === 'treble' ? 4 : 2)
+const OCTAVE_RANGE = [1, 2, 3, 4, 5, 6, 7] as const
 const selectedNotes = ref<SelectedNote[]>([])
 
 const selectedMidis = computed(() => selectedNotes.value.map(n => n.midi))
 
-const visibleOctaveList = computed(() =>
-  Array.from({ length: visibleOctaves }, (_, i) => startOctave.value + i)
-)
+const keyboardScrollRef = ref<HTMLElement | null>(null)
+const octaveRefs = new Map<number, HTMLElement>()
 
-watch(() => props.hand, (h) => {
-  startOctave.value = h === 'treble' ? 4 : 2
+function registerOctaveRef(oct: number, el: unknown) {
+  const node = (el as { $el?: HTMLElement } | HTMLElement | null)
+  if (!node) {
+    octaveRefs.delete(oct)
+    return
+  }
+  const htmlEl = '$el' in node ? node.$el : node
+  if (htmlEl instanceof HTMLElement) octaveRefs.set(oct, htmlEl)
+}
+
+function scrollToOctave(oct: number) {
+  nextTick(() => {
+    const container = keyboardScrollRef.value
+    const target = octaveRefs.get(oct)
+    if (!container || !target) return
+    const targetCenter = target.offsetLeft + target.offsetWidth / 2
+    const scrollLeft = targetCenter - container.clientWidth / 2
+    container.scrollTo({ left: Math.max(0, scrollLeft), behavior: 'smooth' })
+  })
+}
+
+onMounted(() => {
+  scrollToOctave(props.hand === 'treble' ? 4 : 2)
 })
 
-function shiftOctaves(delta: number) {
-  startOctave.value = Math.min(7 - visibleOctaves, Math.max(1, startOctave.value + delta))
-}
+watch(() => props.hand, (h) => {
+  scrollToOctave(h === 'treble' ? 4 : 2)
+})
 
 interface ToggleEvt { letter: Letter, octave: number, midi: number }
 
@@ -247,15 +253,8 @@ function onSlotClick(idx: number) {
     midi: n.midi,
     accidental: n.accidental
   }))
-  // Centrar el piano sobre las notas del slot si quedan fuera del rango visible
-  const octs = slot.map(n => n.octave)
-  const minOct = Math.min(...octs)
-  const maxOct = Math.max(...octs)
-  const visibleEnd = startOctave.value + visibleOctaves - 1
-  if (minOct < startOctave.value || maxOct > visibleEnd) {
-    const centered = Math.round((minOct + maxOct) / 2) - Math.floor(visibleOctaves / 2)
-    startOctave.value = Math.max(1, Math.min(7 - visibleOctaves, centered))
-  }
+  // Scroll del piano hasta la octava más grave del slot
+  scrollToOctave(Math.min(...slot.map(n => n.octave)))
   emit('sync-controls', {
     duration: first.duration,
     dotted: !!first.dotted,
