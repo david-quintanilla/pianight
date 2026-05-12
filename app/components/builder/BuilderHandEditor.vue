@@ -26,7 +26,7 @@
             <ChevronLeft :size="13" />
           </Button>
           <span class="text-paper/50 font-mono">
-            {{ $t('page.builder-octave') }} {{ startOctave }}–{{ startOctave + visibleOctaves - 1 }}
+            {{ $t('page.builder-octave') }} {{ visibleOctaves > 1 ? `${startOctave}–${startOctave + visibleOctaves - 1}` : startOctave }}
           </span>
           <Button variant="outline" size="icon" class="h-6 w-6" @click="shiftOctaves(1)">
             <ChevronRight :size="13" />
@@ -189,7 +189,7 @@ interface SelectedNote {
   accidental: 'sharp' | 'flat' | null
 }
 
-const visibleOctaves = 3
+const visibleOctaves = 1
 const startOctave = ref(props.hand === 'treble' ? 4 : 2)
 const selectedNotes = ref<SelectedNote[]>([])
 
