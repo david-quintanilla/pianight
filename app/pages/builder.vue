@@ -21,6 +21,8 @@
             <ArrowLeft :size="14" />
             {{ $t('page.builder-back') }}
           </Button>
+          <BuilderSyncStatus v-if="builder.currentSong && drive.isConnected" />
+          <BuilderDriveMenu />
           <Button size="sm" @click="onCreate">
             <Plus :size="14" />
             {{ $t('page.builder-new') }}
@@ -203,11 +205,16 @@ import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
 import BuilderGrandStaff from '~/components/builder/BuilderGrandStaff.vue'
 import BuilderMeasureSheet from '~/components/builder/BuilderMeasureSheet.vue'
+import BuilderDriveMenu from '~/components/builder/BuilderDriveMenu.vue'
+import BuilderSyncStatus from '~/components/builder/BuilderSyncStatus.vue'
 import type { BuilderNote, Duration, Hand } from '~/stores/builder.store'
 
 const builder = useBuilderStore()
+const drive = useDriveStore()
 const playback = useBuilderPlayback()
 const { t } = useI18n()
+
+useDriveSync()
 
 const hasNotes = computed(() => {
   if (!builder.currentSong) return false

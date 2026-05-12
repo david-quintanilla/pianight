@@ -7,6 +7,11 @@ export default defineNuxtConfig({
   devtools: {
     enabled: false
   },
+  runtimeConfig: {
+    public: {
+      googleClientId: ''
+    }
+  },
   css: [
     '~/assets/css/global.css'
   ],
