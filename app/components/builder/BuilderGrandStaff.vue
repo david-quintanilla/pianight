@@ -311,7 +311,7 @@
 
 <script lang="ts" setup>
 import type { Duration, Hand, Measure } from '~/stores/builder.store'
-import { DURATION_BEATS, measureCapacityBeats } from '~/stores/builder.store'
+import { measureCapacityBeats, noteBeats } from '~/stores/builder.store'
 
 interface Props {
   measures: Measure[]
@@ -578,7 +578,7 @@ function buildPlacedNotes(m: Measure, measureX: number): { placed: PlacedNote[],
         isRest: !!first.isRest,
         notes: slot
       })
-      beatsCursor += DURATION_BEATS[first.duration]
+      beatsCursor += noteBeats(first)
     })
 
     // Mapeo de slotIdx → x calculado, asegurando separación mínima
