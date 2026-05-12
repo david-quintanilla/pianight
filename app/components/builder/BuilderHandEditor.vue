@@ -50,6 +50,14 @@
       {{ $t('page.builder-pitch-hint') }}
     </p>
 
+    <div
+      v-if="atCapacity && editingIdx === null"
+      class="flex items-start gap-2 rounded-md border border-amber-300/30 bg-amber-300/[0.06] px-3 py-2 text-[11px] text-amber-200/90"
+    >
+      <TriangleAlert :size="13" class="shrink-0 mt-0.5" />
+      <span>{{ $t('page.builder-full-hint') }}</span>
+    </div>
+
     <div class="grid grid-cols-2 gap-2">
       <Button
         :disabled="(editingIdx === null && full) || selectedNotes.length === 0"
@@ -140,7 +148,7 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowDown, ArrowUp, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Pause, Plus, Trash2, Waves } from 'lucide-vue-next'
+import { ArrowDown, ArrowUp, ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Pause, Plus, Trash2, TriangleAlert, Waves } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
 import type { BuilderNote, Duration, Hand } from '~/stores/builder.store'
