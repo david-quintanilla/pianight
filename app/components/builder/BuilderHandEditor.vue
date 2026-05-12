@@ -314,6 +314,7 @@ function buildNotes(): BuilderNote[] {
 function addChord() {
   if (full.value || selectedNotes.value.length === 0) return
   emit('add', buildNotes())
+  selectedNotes.value = []
 }
 
 function slotLabel(slot: BuilderNote[]): string {
