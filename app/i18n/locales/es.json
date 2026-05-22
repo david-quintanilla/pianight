@@ -72,6 +72,7 @@
   "page.chords-title": "Acordes",
   "page.chords-description": "Elige una nota y un tipo de acorde para ver su fundamental e inversiones.",
   "page.chords-play": "Escuchar acorde",
+  "page.chords-stop": "Detener acorde",
   "page.staves-label": "Lectura musical",
   "page.staves-title": "Gran pentagrama",
   "page.staves-description": "Pasa el ratón por una nota o por una tecla. Escucha, mira la posición y conecta los dos lenguajes.",

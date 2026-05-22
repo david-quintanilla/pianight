@@ -1,8 +1,10 @@
 <template>
-  <div class="w-full">
+  <div class="inline-block">
     <svg
       :viewBox="`0 ${-topPadding} ${width} ${height + topPadding}`"
-      :style="{ width: '100%', height: 'auto' }"
+      :width="width"
+      :height="height + topPadding"
+      :style="{ display: 'block' }"
       role="img"
       :aria-label="$t('page.staves-title')"
     >
@@ -80,6 +82,7 @@
       <g
         v-for="entry in placedNotes"
         :key="entry.note.id"
+        :data-step="entry.note.step"
         :transform="`translate(${entry.x}, ${entry.y})`"
         class="cursor-pointer"
         @mouseenter="handleEnter(entry.note)"

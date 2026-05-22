@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-ink-950">
     <header class="sticky top-0 z-50 backdrop-blur-md bg-ink-950/70">
-      <div class="max-w-[1600px] mx-auto px-6 lg:px-12 h-14 flex items-center justify-between gap-10">
+      <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-12 h-14 flex items-center justify-between gap-4 md:gap-10">
 
         <!-- Logo lockup -->
         <NuxtLink to="/" class="shrink-0 logo-wrap">
@@ -10,10 +10,10 @@
           </span>
         </NuxtLink>
 
-        <!-- Nav con indicador deslizante dorado -->
+        <!-- Nav con indicador deslizante dorado (desktop / tablet) -->
         <nav
           ref="navEl"
-          class="relative flex items-center gap-1"
+          class="relative hidden md:flex items-center gap-1"
         >
           <span
             class="absolute top-1/2 -translate-y-1/2 h-9 rounded-full bg-gradient-to-b from-gold-400/15 to-gold-500/[0.06] border border-gold-400/20 transition-all duration-[450ms] ease-[cubic-bezier(0.32,0.72,0,1)]"
@@ -57,9 +57,38 @@
       />
     </header>
 
-    <main>
+    <main class="pb-[calc(64px+env(safe-area-inset-bottom))] md:pb-0">
       <slot />
     </main>
+
+    <!-- Bottom tab bar (solo mobile) -->
+    <nav
+      class="md:hidden fixed bottom-0 left-0 right-0 z-50 backdrop-blur-md bg-ink-950/85 border-t border-white/[0.06]"
+      :style="{ paddingBottom: 'env(safe-area-inset-bottom)' }"
+    >
+      <ul class="grid grid-cols-3 h-16">
+        <li
+          v-for="item in menu"
+          :key="item.route"
+        >
+          <NuxtLink
+            :to="item.route"
+            class="relative h-full flex flex-col items-center justify-center gap-1 transition-colors duration-200"
+            :class="item.isActive ? 'text-gold-200' : 'text-paper/55 hover:text-paper'"
+          >
+            <span
+              v-if="item.isActive"
+              aria-hidden="true"
+              class="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-[2px] rounded-full bg-gradient-to-r from-transparent via-gold-400/80 to-transparent"
+            />
+            <component :is="item.icon" :size="20" :stroke-width="1.75" />
+            <span class="font-display text-[11px] tracking-tight leading-none">
+              {{ item.label }}
+            </span>
+          </NuxtLink>
+        </li>
+      </ul>
+    </nav>
   </div>
 </template>
 
@@ -89,6 +118,7 @@
 
 <script setup lang="ts">
 import type { ComponentPublicInstance } from 'vue'
+import { Music2, AudioLines, PencilLine } from 'lucide-vue-next'
 
 const i18n = useI18n()
 const route = useRoute()
@@ -97,16 +127,19 @@ const menu = computed(() => [
   {
     label: i18n.t('chords'),
     route: '/',
+    icon: Music2,
     isActive: route.path === '/'
   },
   {
     label: i18n.t('staves'),
     route: '/staves',
+    icon: AudioLines,
     isActive: route.path.includes('/staves')
   },
   {
     label: i18n.t('builder'),
     route: '/builder',
+    icon: PencilLine,
     isActive: route.path.includes('/builder')
   }
 ])

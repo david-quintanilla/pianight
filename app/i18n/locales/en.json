@@ -72,6 +72,7 @@
   "page.chords-title": "Chords",
   "page.chords-description": "Pick a note and a chord type to see its root and inversions.",
   "page.chords-play": "Play chord",
+  "page.chords-stop": "Stop chord",
   "page.staves-label": "Music reading",
   "page.staves-title": "Grand staff",
   "page.staves-description": "Hover over a note or a key. Listen, see the position and connect both languages.",

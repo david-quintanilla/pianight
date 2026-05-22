@@ -30,22 +30,29 @@ export function useAudio() {
     loadPiano().catch(() => { /* silencio si CDN falla */ })
   }
 
-  async function playMidi(midi: number, durationMs = 1500) {
+  async function playMidi(midi: number, durationMs = 1500, stopId?: string) {
     if (typeof window === 'undefined') return
     const audio = getContext()
     if (audio.state === 'suspended') await audio.resume()
 
     try {
       const piano = await loadPiano()
-      piano.start({
+      return piano.start({
         note: midi,
         velocity: 90,
-        duration: durationMs / 1000
+        duration: durationMs / 1000,
+        stopId
       })
     } catch {
-      // Ignorar silenciosamente si la carga del piano falla
+      return undefined
     }
   }
 
-  return { playMidi, preload }
+  function stop(stopId?: string) {
+    if (!pianoInstance) return
+    if (stopId) pianoInstance.stop(stopId)
+    else pianoInstance.stop()
+  }
+
+  return { playMidi, preload, stop }
 }

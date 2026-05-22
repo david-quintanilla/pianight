@@ -1,42 +1,57 @@
 <template>
   <article class="px-2 py-2">
-    <header class="flex items-center justify-center gap-3 mb-2">
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-2 sm:gap-3 mb-3">
       <h2
-        class="font-display tracking-tight text-paper"
+        class="font-display tracking-tight text-paper text-center"
         :class="titleStyle === 'hero'
-          ? 'text-xl lg:text-2xl font-semibold'
+          ? 'text-lg sm:text-xl lg:text-2xl font-semibold'
           : 'text-sm font-display-italic font-medium text-paper/85'"
       >
         {{ title }}
       </h2>
-      <Badge
-        v-if="formula"
-        variant="default"
-        class="font-sans font-medium tabular-nums tracking-wider bg-gold-400/20 border-gold-400/50 text-gold-200 text-[11px] py-0.5 px-2.5"
-      >
-        {{ formula }}
-      </Badge>
-      <Button
-        variant="outline"
-        size="icon"
-        class="h-7 w-7 text-aqua-300 border-aqua-400/30 hover:bg-aqua-400/10 hover:text-aqua-200"
-        :title="$t('page.chords-play')"
-        @click="onPlay"
-      >
-        <Play :size="13" />
-      </Button>
+      <div class="flex items-center justify-center gap-2">
+        <Badge
+          v-if="formula"
+          variant="default"
+          class="font-sans font-medium tabular-nums tracking-wider bg-gold-400/20 border-gold-400/50 text-gold-200 text-[11px] py-0.5 px-2.5"
+        >
+          {{ formula }}
+        </Badge>
+        <Button
+          variant="outline"
+          size="icon"
+          class="h-7 w-7 shrink-0 border-aqua-400/30 hover:bg-aqua-400/10"
+          :class="isPlaying
+            ? 'text-aqua-100 bg-aqua-400/15 border-aqua-400/50'
+            : 'text-aqua-300 hover:text-aqua-200'"
+          :title="isPlaying ? $t('page.chords-stop') : $t('page.chords-play')"
+          @click="onToggle"
+        >
+          <Pause v-if="isPlaying" :size="13" />
+          <Play v-else :size="13" />
+        </Button>
+      </div>
     </header>
 
-    <div class="flex justify-center gap-1 overflow-x-auto scroll-elegant pb-1">
-      <PianoKeyboardOctave :selected-notes="octaves.firstOctave" />
-      <PianoKeyboardOctave :selected-notes="octaves.secondOctave" center-c />
-      <PianoKeyboardOctave :selected-notes="octaves.thirdOctave" />
+    <div
+      ref="scrollerEl"
+      class="flex justify-start md:justify-center gap-1 overflow-x-auto scroll-elegant pb-1"
+    >
+      <div ref="firstOctaveEl">
+        <PianoKeyboardOctave :selected-notes="octaves.firstOctave" />
+      </div>
+      <div ref="centerOctaveEl">
+        <PianoKeyboardOctave :selected-notes="octaves.secondOctave" center-c />
+      </div>
+      <div ref="lastOctaveEl">
+        <PianoKeyboardOctave :selected-notes="octaves.thirdOctave" />
+      </div>
     </div>
   </article>
 </template>
 
 <script setup lang="ts">
-import { Play } from 'lucide-vue-next'
+import { Play, Pause } from 'lucide-vue-next'
 import { Badge } from '~/components/ui/badge'
 import { Button } from '~/components/ui/button'
 
@@ -57,19 +72,68 @@ const props = withDefaults(defineProps<Props>(), {
   titleStyle: 'inversion'
 })
 
-const { playMidi, preload } = useAudio()
+const { playMidi, preload, stop } = useAudio()
 
-onMounted(() => preload())
+const PLAY_DURATION_MS = 1800
+const stopId = `chord-${Math.random().toString(36).slice(2, 9)}`
+const isPlaying = ref(false)
+let playTimer: ReturnType<typeof setTimeout> | null = null
+
+const scrollerEl = ref<HTMLElement | null>(null)
+const centerOctaveEl = ref<HTMLElement | null>(null)
+
+function centerSecondOctave() {
+  const scroller = scrollerEl.value
+  const target = centerOctaveEl.value
+  if (!scroller || !target) return
+  if (scroller.scrollWidth <= scroller.clientWidth) return
+  const sRect = scroller.getBoundingClientRect()
+  const tRect = target.getBoundingClientRect()
+  const offset = (tRect.left - sRect.left) - (sRect.width - tRect.width) / 2
+  scroller.scrollLeft += offset
+}
+
+onMounted(() => {
+  preload()
+  nextTick(centerSecondOctave)
+})
+
+watch(() => props.octaves, () => nextTick(centerSecondOctave), { deep: true })
 
 function idToMidi(id: number, octave: number): number {
   return (octave + 1) * 12 + (id - 1)
 }
 
-function onPlay() {
+function clearPlayTimer() {
+  if (playTimer) {
+    clearTimeout(playTimer)
+    playTimer = null
+  }
+}
+
+function onToggle() {
+  if (isPlaying.value) {
+    stop(stopId)
+    clearPlayTimer()
+    isPlaying.value = false
+    return
+  }
+
   const midis: number[] = []
   props.octaves.firstOctave?.forEach(id => midis.push(idToMidi(id, 3)))
   props.octaves.secondOctave?.forEach(id => midis.push(idToMidi(id, 4)))
   props.octaves.thirdOctave?.forEach(id => midis.push(idToMidi(id, 5)))
-  midis.forEach(m => playMidi(m, 1800))
+  midis.forEach(m => playMidi(m, PLAY_DURATION_MS, stopId))
+
+  isPlaying.value = true
+  playTimer = setTimeout(() => {
+    isPlaying.value = false
+    playTimer = null
+  }, PLAY_DURATION_MS)
 }
+
+onBeforeUnmount(() => {
+  stop(stopId)
+  clearPlayTimer()
+})
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <section class="px-6 lg:px-10 py-6 lg:py-8">
+  <section class="px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
     <div class="max-w-[1600px] mx-auto flex flex-col gap-6">
       <header class="flex items-center justify-between gap-4">
         <div>

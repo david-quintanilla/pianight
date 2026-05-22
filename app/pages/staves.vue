@@ -1,5 +1,5 @@
 <template>
-  <section class="px-6 lg:px-10 py-6 lg:py-8">
+  <section class="px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
     <div class="max-w-[1600px] mx-auto flex flex-col gap-6">
       <header class="flex items-center justify-end gap-2 text-xs">
         <Sheet>
@@ -29,8 +29,11 @@
         </button>
       </header>
 
-      <article class="px-2">
-        <div class="overflow-x-auto scroll-elegant -mx-2 px-2">
+      <article>
+        <div
+          ref="staffScrollerEl"
+          class="overflow-x-auto scroll-elegant -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10"
+        >
           <StavesGrandStaff
             :treble-notes="trebleNotes"
             :bass-notes="bassNotes"
@@ -42,17 +45,24 @@
         </div>
       </article>
 
-      <article class="px-2">
-        <div class="overflow-x-auto scroll-elegant -mx-2 px-2">
-          <div class="flex gap-1 mx-auto" :style="{ width: 'fit-content' }">
-            <PianoKeyboardOctave
+      <article>
+        <div
+          ref="pianoScrollerEl"
+          class="overflow-x-auto scroll-elegant -mx-4 sm:-mx-6 lg:-mx-10 px-4 sm:px-6 lg:px-10"
+        >
+          <div class="flex gap-1 md:mx-auto" :style="{ width: 'fit-content' }">
+            <div
               v-for="oct in [2, 3, 4, 5]"
               :key="oct"
-              :octave="oct"
-              :selected-midis="highlightedMidi !== null ? [highlightedMidi] : []"
-              @toggle-white="onPianoNote"
-              @toggle-black="onPianoNote"
-            />
+              :ref="(el) => setOctaveRef(el, oct)"
+            >
+              <PianoKeyboardOctave
+                :octave="oct"
+                :selected-midis="highlightedMidi !== null ? [highlightedMidi] : []"
+                @toggle-white="onPianoNote"
+                @toggle-black="onPianoNote"
+              />
+            </div>
           </div>
         </div>
       </article>
@@ -79,13 +89,51 @@ const soundEnabled = ref(true)
 
 onMounted(() => {
   preload()
+  nextTick(() => {
+    centerPianoOnOctave(4)
+  })
 })
 
 const highlighted = ref<StaffNote | null>(null)
 const highlightedMidi = computed(() => highlighted.value?.midi ?? null)
 
+const staffScrollerEl = ref<HTMLElement | null>(null)
+const pianoScrollerEl = ref<HTMLElement | null>(null)
+const octaveRefs = ref<Record<number, HTMLElement | null>>({})
+
+function setOctaveRef(el: Element | null, octave: number) {
+  octaveRefs.value[octave] = (el as HTMLElement | null)
+}
+
+function centerElementInScroller(scroller: HTMLElement | null, target: HTMLElement | null) {
+  if (!scroller || !target) return
+  if (scroller.scrollWidth <= scroller.clientWidth) return
+  const sRect = scroller.getBoundingClientRect()
+  const tRect = target.getBoundingClientRect()
+  const offset = (tRect.left - sRect.left) - (sRect.width - tRect.width) / 2
+  scroller.scrollTo({ left: scroller.scrollLeft + offset, behavior: 'smooth' })
+}
+
+function centerPianoOnOctave(octave: number) {
+  centerElementInScroller(pianoScrollerEl.value, octaveRefs.value[octave] ?? null)
+}
+
+function centerStaffOnNote(note: StaffNote) {
+  const scroller = staffScrollerEl.value
+  if (!scroller) return
+  const target = scroller.querySelector<SVGGElement>(`g[data-step="${note.step}"]`)
+  if (!target) return
+  centerElementInScroller(scroller, target as unknown as HTMLElement)
+}
+
 function setHighlight(note: StaffNote | null) {
   highlighted.value = note
+  if (note) {
+    nextTick(() => {
+      centerPianoOnOctave(note.octave)
+      centerStaffOnNote(note)
+    })
+  }
 }
 
 type Letter = 'C' | 'D' | 'E' | 'F' | 'G' | 'A' | 'B'
