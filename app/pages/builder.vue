@@ -2,16 +2,13 @@
   <section class="px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
     <div class="max-w-[1600px] mx-auto flex flex-col gap-6">
       <header class="flex items-center justify-between gap-3">
-        <div class="min-w-0">
-          <p class="text-[11px] uppercase tracking-[0.18em] text-paper/40 hidden sm:block">
+        <div class="hidden sm:block min-w-0">
+          <p class="text-[11px] uppercase tracking-[0.18em] text-paper/40">
             {{ $t('page.builder-label') }}
           </p>
-          <h1 class="font-display text-xl sm:text-2xl text-paper sm:mt-1 truncate">
-            {{ builder.currentSong ? builder.currentSong.title || $t('page.builder-new-default') : $t('page.builder-title') }}
-          </h1>
         </div>
 
-        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
           <Button
             v-if="builder.currentSong"
             variant="outline"
@@ -105,46 +102,55 @@
           >
 
           <!-- Fila 2: metadatos -->
-          <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
-            <label class="flex items-center gap-1.5">
-              <span class="text-paper/40">{{ $t('page.builder-key') }}</span>
+          <div class="flex items-center gap-6 sm:gap-8 text-xs">
+            <label class="flex items-center gap-1.5 min-w-0">
+              <Music :size="13" class="text-paper/40 shrink-0 sm:hidden" />
+              <span class="text-paper/40 hidden sm:inline">{{ $t('page.builder-key') }}</span>
               <select
                 v-model="keyModel"
-                class="bg-ink-900 border border-white/10 rounded px-2 py-1 text-paper text-xs"
+                :title="$t('page.builder-key')"
+                class="bg-ink-900 border border-white/10 rounded px-1.5 py-1 text-paper text-xs"
               >
-                <option v-for="k in KEYS" :key="k" :value="k">{{ k }}</option>
+                <option v-for="k in KEYS" :key="k" :value="k">{{ keyLabel(k) }}</option>
               </select>
             </label>
 
-            <label class="flex items-center gap-1.5">
-              <span class="text-paper/40">{{ $t('page.builder-time') }}</span>
+            <label class="flex items-center gap-1.5 min-w-0">
+              <Clock :size="13" class="text-paper/40 shrink-0 sm:hidden" />
+              <span class="text-paper/40 hidden sm:inline">{{ $t('page.builder-time') }}</span>
               <select
                 v-model="timeModel"
-                class="bg-ink-900 border border-white/10 rounded px-2 py-1 text-paper text-xs"
+                :title="$t('page.builder-time')"
+                class="bg-ink-900 border border-white/10 rounded px-1.5 py-1 text-paper text-xs"
               >
                 <option v-for="t in TIMES" :key="t" :value="t">{{ t }}</option>
               </select>
             </label>
 
-            <label class="flex items-center gap-1.5">
-              <span class="text-paper/40">{{ $t('page.builder-tempo') }}</span>
+            <label class="flex items-center gap-1.5 min-w-0">
+              <Gauge :size="13" class="text-paper/40 shrink-0 sm:hidden" />
+              <span class="text-paper/40 hidden sm:inline">{{ $t('page.builder-tempo') }}</span>
               <input
                 v-model.number="tempoModel"
                 type="number"
                 min="30"
                 max="240"
-                class="bg-ink-900 border border-white/10 rounded px-2 py-1 text-paper text-xs w-14"
+                :title="$t('page.builder-tempo')"
+                class="bg-ink-900 border border-white/10 rounded px-1.5 py-1 text-paper text-xs w-12"
               >
-              <span class="text-paper/40">bpm</span>
+              <span class="text-paper/40 text-[10px] sm:text-xs">bpm</span>
             </label>
           </div>
 
-          <!-- Fila 3: acciones -->
-          <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-white/5">
+        </div>
+
+        <div class="rounded-xl border border-white/5 bg-ink-900/40 p-3 sm:p-4 flex flex-col gap-3">
+          <!-- Acciones del pentagrama -->
+          <div class="sticky top-14 z-20 -mx-3 sm:-mx-4 px-3 sm:px-4 py-2 bg-ink-900/95 backdrop-blur border-b border-white/5 flex items-center gap-2">
             <Button
               v-if="!playback.isPlaying.value"
               size="sm"
-              class="bg-aqua-400/15 text-aqua-200 hover:bg-aqua-400/25 border border-aqua-400/30 flex-1 sm:flex-none"
+              class="bg-aqua-400/15 text-aqua-200 hover:bg-aqua-400/25 border border-aqua-400/30"
               :disabled="!hasNotes"
               @click="onPlay"
             >
@@ -155,14 +161,13 @@
               v-else
               size="sm"
               variant="outline"
-              class="flex-1 sm:flex-none"
               @click="playback.stop"
             >
               <Square :size="14" />
               {{ $t('page.builder-stop') }}
             </Button>
 
-            <div class="flex-1 hidden sm:block" />
+            <div class="flex-1" />
 
             <Button
               variant="outline"
@@ -184,12 +189,11 @@
               <span class="hidden sm:inline">{{ $t('page.builder-add-measure') }}</span>
             </Button>
           </div>
-        </div>
 
-        <div class="rounded-xl border border-white/5 bg-ink-900/40 p-4">
           <BuilderGrandStaff
             :measures="builder.currentSong.measures"
             :time-signature="builder.currentSong.timeSignature"
+            :key-signature="builder.currentSong.keySignature"
             :selected-measure-id="selectedMeasureId"
             :playing-measure-idx="playback.currentMeasureIdx.value"
             :playhead-ms="playback.playheadMs.value"
@@ -231,7 +235,7 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowLeft, BookOpen, Minus, Play, Plus, Square, Trash2 } from 'lucide-vue-next'
+import { ArrowLeft, BookOpen, Clock, Gauge, Minus, Music, Play, Plus, Square, Trash2 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
 import {
@@ -269,6 +273,19 @@ useHead({ title: 'Pianight · Builder' })
 
 const KEYS = ['C', 'G', 'D', 'A', 'E', 'B', 'F', 'B♭', 'E♭', 'A♭']
 const TIMES = ['4/4', '3/4', '6/8', '2/4']
+
+const KEY_LETTER_MAP: Record<string, string> = {
+  C: 'note.c', D: 'note.d', E: 'note.e', F: 'note.f',
+  G: 'note.g', A: 'note.a', B: 'note.b'
+}
+
+function keyLabel(k: string) {
+  const letter = k.charAt(0)
+  const suffix = k.slice(1)
+  const i18nKey = KEY_LETTER_MAP[letter]
+  if (!i18nKey) return k
+  return t(i18nKey) + suffix
+}
 
 const sheetOpen = ref(false)
 const selectedMeasureId = ref<string | null>(null)

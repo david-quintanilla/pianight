@@ -66,6 +66,22 @@
           :style="{ fontSize: `${lineGap * 4}px`, fill: 'var(--color-gold-400)' }"
         >{{ fClef }}</text>
 
+        <!-- Armadura (sostenidos o bemoles según la tonalidad) -->
+        <template v-for="(pos, i) in keySignatureMarks.positions" :key="`ks-${i}`">
+          <text
+            :x="staffLeft + lineGap * 5.5 + i * lineGap * 0.9"
+            :y="trebleTop + pos.treble * (lineGap / 2)"
+            class="font-music select-none"
+            :style="{ fontSize: `${lineGap * 2.4}px`, fill: 'var(--color-paper)' }"
+          >{{ keySignatureMarks.glyph }}</text>
+          <text
+            :x="staffLeft + lineGap * 5.5 + i * lineGap * 0.9"
+            :y="bassTop + pos.bass * (lineGap / 2)"
+            class="font-music select-none"
+            :style="{ fontSize: `${lineGap * 2.4}px`, fill: 'var(--color-paper)' }"
+          >{{ keySignatureMarks.glyph }}</text>
+        </template>
+
         <template v-if="sIdx === 0">
           <text
             :x="staffLeft + leftClefPadding - lineGap * 1.6"
@@ -123,7 +139,7 @@
           <rect
             :x="m.x"
             :y="trebleTop - lineGap * 2"
-            :width="measureWidth"
+            :width="m.width"
             :height="(bassTop + 4 * lineGap + lineGap * 2) - (trebleTop - lineGap * 2)"
             :fill="selectedMeasureId === m.id
               ? 'rgba(252, 211, 77, 0.06)'
@@ -316,6 +332,7 @@ import { measureCapacityBeats, noteBeats } from '~/stores/builder.store'
 interface Props {
   measures: Measure[]
   timeSignature: string
+  keySignature?: string
   selectedMeasureId?: string | null
   playingMeasureIdx?: number
   playheadMs?: number
@@ -324,6 +341,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  keySignature: 'C',
   selectedMeasureId: null,
   playingMeasureIdx: -1,
   playheadMs: 0,
@@ -336,16 +354,17 @@ const emit = defineEmits<{
 }>()
 
 const lineGap = 14
-const staffLeft = 64
-const trebleTop = lineGap * 5
+const staffLeft = computed(() => isMobileLayout.value ? 16 : 64)
+const trebleTop = computed(() => lineGap * (isMobileLayout.value ? 2 : 5))
 const staffGap = lineGap * 4.5
-const bassTop = trebleTop + 4 * lineGap + staffGap
-const systemHeight = bassTop + 4 * lineGap + lineGap * 5
-const systemTopPadding = lineGap * 3
-const systemSpacing = lineGap * 3
+const bassTop = computed(() => trebleTop.value + 4 * lineGap + staffGap)
+const systemHeight = computed(() => bassTop.value + 4 * lineGap + lineGap * (isMobileLayout.value ? 1.5 : 5))
+const systemTopPadding = computed(() => lineGap * (isMobileLayout.value ? 0.5 : 3))
+const systemSpacing = computed(() => lineGap * (isMobileLayout.value ? 1 : 3))
 const noteRadius = lineGap * 0.42
 
-const leftClefPadding = lineGap * 9
+const leftClefPaddingBase = lineGap * 9
+const leftClefPadding = computed(() => leftClefPaddingBase + keySignatureWidth.value)
 const rightPadding = lineGap * 1.5
 
 const lineColor = 'rgba(207, 250, 254, 0.7)'
@@ -364,11 +383,48 @@ const flag16Down = String.fromCodePoint(0xE243)
 // D3 (línea central de la clave de Fa):  step = 3*7 + 1 = 22
 const TREBLE_REF_STEP = 34
 const BASS_REF_STEP = 22
-const TREBLE_REF_Y = trebleTop + 2 * lineGap
-const BASS_REF_Y = bassTop + 2 * lineGap
+const TREBLE_REF_Y = computed(() => trebleTop.value + 2 * lineGap)
+const BASS_REF_Y = computed(() => bassTop.value + 2 * lineGap)
 
 const tsTop = computed(() => props.timeSignature.split('/')[0] ?? '4')
 const tsBottom = computed(() => props.timeSignature.split('/')[1] ?? '4')
+
+// Armadura: cuántos sostenidos/bemoles trae cada tonalidad mayor.
+// Positivo = sostenidos, negativo = bemoles.
+const KEY_ACCIDENTALS: Record<string, number> = {
+  C: 0,
+  G: 1, D: 2, A: 3, E: 4, B: 5,
+  F: -1, 'B♭': -2, 'E♭': -3, 'A♭': -4
+}
+
+// Orden tradicional de sostenidos: FA♯, DO♯, SOL♯, RE♯, LA♯, MI♯, SI♯
+// Y de bemoles (al revés): SI♭, MI♭, LA♭, RE♭, SOL♭, DO♭, FA♭
+// Para cada uno, su posición vertical relativa al top del staff (en semilíneas, 1 = lineGap/2).
+// Clave de Sol (treble): F#=top, C#=middle, G#=top, D#=middle, A#=high, E#=top, B#=middle
+const SHARP_Y_TREBLE = [0, 3, -1, 2, 5, 1, 4]   // FA♯, DO♯, SOL♯, RE♯, LA♯, MI♯, SI♯
+const SHARP_Y_BASS = [2, 5, 1, 4, 7, 3, 6]
+const FLAT_Y_TREBLE = [4, 1, 5, 2, 6, 3, 7]    // SI♭, MI♭, LA♭, RE♭, SOL♭, DO♭, FA♭
+const FLAT_Y_BASS = [6, 3, 7, 4, 8, 5, 9]
+
+const keySignatureMarks = computed(() => {
+  const count = KEY_ACCIDENTALS[props.keySignature] ?? 0
+  if (count === 0) return { glyph: '', positions: [] as { treble: number, bass: number }[] }
+  if (count > 0) {
+    const positions = Array.from({ length: count }, (_, i) => ({
+      treble: SHARP_Y_TREBLE[i]!,
+      bass: SHARP_Y_BASS[i]!
+    }))
+    return { glyph: sharpGlyph, positions }
+  }
+  const n = -count
+  const positions = Array.from({ length: n }, (_, i) => ({
+    treble: FLAT_Y_TREBLE[i]!,
+    bass: FLAT_Y_BASS[i]!
+  }))
+  return { glyph: flatGlyph, positions }
+})
+
+const keySignatureWidth = computed(() => keySignatureMarks.value.positions.length * lineGap * 0.9)
 
 const containerEl = ref<HTMLElement | null>(null)
 const containerWidth = ref(0)
@@ -390,6 +446,8 @@ onBeforeUnmount(() => {
   ro = null
 })
 
+const isMobileLayout = computed(() => containerWidth.value > 0 && containerWidth.value < 640)
+
 const measuresPerSystem = computed(() => {
   const w = containerWidth.value
   if (w > 0 && w < 640) return 2
@@ -400,12 +458,12 @@ const measuresPerSystem = computed(() => {
 const measureWidth = computed(() => {
   const width = containerWidth.value
   if (width <= 0) return lineGap * 14
-  const usable = width - staffLeft - leftClefPadding - rightPadding
+  const usable = width - staffLeft.value - leftClefPadding.value - rightPadding
   return usable / measuresPerSystem.value
 })
 
 function stepToY(step: number, hand: Hand): number {
-  const refY = hand === 'treble' ? TREBLE_REF_Y : BASS_REF_Y
+  const refY = hand === 'treble' ? TREBLE_REF_Y.value : BASS_REF_Y.value
   const refStep = hand === 'treble' ? TREBLE_REF_STEP : BASS_REF_STEP
   return refY - (step - refStep) * (lineGap / 2)
 }
@@ -474,6 +532,7 @@ interface PlacedMeasure {
   id: string
   number: number
   x: number
+  width: number
   placedNotes: PlacedNote[]
   arpeggios: ArpeggioMark[]
   beams: BeamMark[]
@@ -547,11 +606,10 @@ function detectBeamGroups(slots: SlotInfo[]): SlotInfo[][] {
   return groups
 }
 
-function buildPlacedNotes(m: Measure, measureX: number): { placed: PlacedNote[], arpeggios: ArpeggioMark[], beams: BeamMark[] } {
+function buildPlacedNotes(m: Measure, measureX: number, mw: number = measureWidth.value): { placed: PlacedNote[], arpeggios: ArpeggioMark[], beams: BeamMark[] } {
   const placed: PlacedNote[] = []
   const arpeggios: ArpeggioMark[] = []
   const beams: BeamMark[] = []
-  const mw = measureWidth.value
   const fullCapacity = measureCapacityBeats(props.timeSignature)
   const isPickup = m.pickupBeats !== undefined && m.pickupBeats < fullCapacity
   const effCapacity = m.pickupBeats ?? fullCapacity
@@ -569,7 +627,7 @@ function buildPlacedNotes(m: Measure, measureX: number): { placed: PlacedNote[],
   ;(['treble', 'bass'] as Hand[]).forEach(hand => {
     const slots = hand === 'treble' ? m.treble : m.bass
     const refStep = hand === 'treble' ? TREBLE_REF_STEP : BASS_REF_STEP
-    const staffMidY = (hand === 'treble' ? trebleTop : bassTop) + 2 * lineGap
+    const staffMidY = (hand === 'treble' ? trebleTop.value : bassTop.value) + 2 * lineGap
 
     // Pre-cálculo: posición de cada slot
     const infos: SlotInfo[] = []
@@ -731,26 +789,29 @@ function buildPlacedNotes(m: Measure, measureX: number): { placed: PlacedNote[],
 const systems = computed<System[]>(() => {
   if (containerWidth.value <= 0) return []
   const result: System[] = []
-  const startX = staffLeft + leftClefPadding
-  const mw = measureWidth.value
+  const startX = staffLeft.value + leftClefPadding.value
+  const usable = containerWidth.value - startX - rightPadding
 
   const mps = measuresPerSystem.value
   for (let i = 0; i < props.measures.length; i += mps) {
     const slice = props.measures.slice(i, i + mps)
+    // Si la última fila tiene menos compases, los expandimos para llenar el ancho.
+    const mw = usable / slice.length
     const placed: PlacedMeasure[] = slice.map((m, j) => {
       const x = startX + j * mw
-      const built = buildPlacedNotes(m, x)
+      const built = buildPlacedNotes(m, x, mw)
       return {
         id: m.id,
         number: i + j + 1,
         x,
+        width: mw,
         placedNotes: built.placed,
         arpeggios: built.arpeggios,
         beams: built.beams
       }
     })
     result.push({
-      y: systemTopPadding + result.length * (systemHeight + systemSpacing),
+      y: systemTopPadding.value + result.length * (systemHeight.value + systemSpacing.value),
       right: startX + slice.length * mw,
       measures: placed
     })
@@ -759,8 +820,8 @@ const systems = computed<System[]>(() => {
 })
 
 const totalHeight = computed(() => {
-  if (systems.value.length === 0) return systemHeight + systemTopPadding * 2
-  return systemTopPadding * 2 + systems.value.length * systemHeight + (systems.value.length - 1) * systemSpacing
+  if (systems.value.length === 0) return systemHeight.value + systemTopPadding.value * 2
+  return systemTopPadding.value * 2 + systems.value.length * systemHeight.value + (systems.value.length - 1) * systemSpacing.value
 })
 
 interface PlayheadPos {
@@ -794,9 +855,9 @@ const playhead = computed<PlayheadPos | null>(() => {
   const progress = Math.min(1, elapsedInMeasure / dur)
 
   return {
-    x: activeMeasure.x + progress * measureWidth.value,
-    yTop: activeSystem.y + trebleTop - lineGap * 2,
-    yBottom: activeSystem.y + bassTop + 4 * lineGap + lineGap * 2
+    x: activeMeasure.x + progress * activeMeasure.width,
+    yTop: activeSystem.y + trebleTop.value - lineGap * 2,
+    yBottom: activeSystem.y + bassTop.value + 4 * lineGap + lineGap * 2
   }
 })
 
@@ -817,9 +878,9 @@ function arpeggioPath(height: number): string {
 }
 
 const bracePath = computed(() => {
-  const x = staffLeft - 6
-  const y1 = trebleTop - 6
-  const y2 = bassTop + 4 * lineGap + 6
+  const x = staffLeft.value - 6
+  const y1 = trebleTop.value - 6
+  const y2 = bassTop.value + 4 * lineGap + 6
   const mid = (y1 + y2) / 2
   const w = 18
   return `
