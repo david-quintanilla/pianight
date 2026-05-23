@@ -35,7 +35,7 @@
 
     <div
       ref="scrollerEl"
-      class="flex justify-start md:justify-center gap-1 overflow-x-auto scroll-elegant pb-1"
+      class="flex justify-start md:justify-center gap-1 overflow-x-auto scroll-hidden pb-1"
     >
       <div ref="firstOctaveEl">
         <PianoKeyboardOctave :selected-notes="octaves.firstOctave" />
@@ -80,25 +80,36 @@ const isPlaying = ref(false)
 let playTimer: ReturnType<typeof setTimeout> | null = null
 
 const scrollerEl = ref<HTMLElement | null>(null)
+const firstOctaveEl = ref<HTMLElement | null>(null)
 const centerOctaveEl = ref<HTMLElement | null>(null)
+const lastOctaveEl = ref<HTMLElement | null>(null)
 
-function centerSecondOctave() {
+function centerActiveRange() {
   const scroller = scrollerEl.value
-  const target = centerOctaveEl.value
-  if (!scroller || !target) return
+  if (!scroller) return
   if (scroller.scrollWidth <= scroller.clientWidth) return
+
+  const activeEls: HTMLElement[] = []
+  if (props.octaves.firstOctave?.length && firstOctaveEl.value) activeEls.push(firstOctaveEl.value)
+  if (props.octaves.secondOctave?.length && centerOctaveEl.value) activeEls.push(centerOctaveEl.value)
+  if (props.octaves.thirdOctave?.length && lastOctaveEl.value) activeEls.push(lastOctaveEl.value)
+
+  if (activeEls.length === 0) return
+
   const sRect = scroller.getBoundingClientRect()
-  const tRect = target.getBoundingClientRect()
-  const offset = (tRect.left - sRect.left) - (sRect.width - tRect.width) / 2
+  const firstRect = activeEls[0]!.getBoundingClientRect()
+  const lastRect = activeEls[activeEls.length - 1]!.getBoundingClientRect()
+  const rangeCenter = (firstRect.left + lastRect.right) / 2
+  const offset = (rangeCenter - sRect.left) - sRect.width / 2
   scroller.scrollLeft += offset
 }
 
 onMounted(() => {
   preload()
-  nextTick(centerSecondOctave)
+  nextTick(centerActiveRange)
 })
 
-watch(() => props.octaves, () => nextTick(centerSecondOctave), { deep: true })
+watch(() => props.octaves, () => nextTick(centerActiveRange), { deep: true })
 
 function idToMidi(id: number, octave: number): number {
   return (octave + 1) * 12 + (id - 1)

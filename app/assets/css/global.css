@@ -147,6 +147,15 @@ button {
   background: rgba(255, 255, 255, 0.12);
 }
 
+/* Scroll sin scrollbar visible (manteniendo el scroll funcional) */
+.scroll-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
 /* Glow sutil en notas activas */
 .note-glow {
   filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.6));

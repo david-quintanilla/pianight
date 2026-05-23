@@ -347,7 +347,6 @@ const noteRadius = lineGap * 0.42
 
 const leftClefPadding = lineGap * 9
 const rightPadding = lineGap * 1.5
-const MEASURES_PER_SYSTEM = 4
 
 const lineColor = 'rgba(207, 250, 254, 0.7)'
 const paperColor = 'rgba(244, 241, 234, 0.92)'
@@ -391,11 +390,18 @@ onBeforeUnmount(() => {
   ro = null
 })
 
+const measuresPerSystem = computed(() => {
+  const w = containerWidth.value
+  if (w > 0 && w < 640) return 2
+  if (w > 0 && w < 960) return 3
+  return 4
+})
+
 const measureWidth = computed(() => {
   const width = containerWidth.value
   if (width <= 0) return lineGap * 14
   const usable = width - staffLeft - leftClefPadding - rightPadding
-  return usable / MEASURES_PER_SYSTEM
+  return usable / measuresPerSystem.value
 })
 
 function stepToY(step: number, hand: Hand): number {
@@ -728,8 +734,9 @@ const systems = computed<System[]>(() => {
   const startX = staffLeft + leftClefPadding
   const mw = measureWidth.value
 
-  for (let i = 0; i < props.measures.length; i += MEASURES_PER_SYSTEM) {
-    const slice = props.measures.slice(i, i + MEASURES_PER_SYSTEM)
+  const mps = measuresPerSystem.value
+  for (let i = 0; i < props.measures.length; i += mps) {
+    const slice = props.measures.slice(i, i + mps)
     const placed: PlacedMeasure[] = slice.map((m, j) => {
       const x = startX + j * mw
       const built = buildPlacedNotes(m, x)

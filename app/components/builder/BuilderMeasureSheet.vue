@@ -1,6 +1,9 @@
 <template>
   <Sheet :open="open" @update:open="onOpenChange">
-    <SheetContent side="right" class="w-full sm:max-w-lg lg:max-w-xl p-0 flex flex-col">
+    <SheetContent
+      :side="sheetSide"
+      class="p-0 flex flex-col w-full sm:max-w-lg lg:max-w-xl h-[92dvh] sm:h-full rounded-t-2xl sm:rounded-none"
+    >
       <SheetHeader class="px-6 pt-6 pb-4 border-b border-white/5">
         <SheetTitle class="font-display text-paper">
           {{ $t('page.builder-sheet-title', { n: measureNumber }) }}
@@ -209,6 +212,26 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const isMobile = ref(false)
+let mql: MediaQueryList | null = null
+
+function onMqChange(e: MediaQueryListEvent) {
+  isMobile.value = e.matches
+}
+
+onMounted(() => {
+  if (typeof window === 'undefined') return
+  mql = window.matchMedia('(max-width: 639px)')
+  isMobile.value = mql.matches
+  mql.addEventListener('change', onMqChange)
+})
+
+onBeforeUnmount(() => {
+  mql?.removeEventListener('change', onMqChange)
+})
+
+const sheetSide = computed<'right' | 'bottom'>(() => isMobile.value ? 'bottom' : 'right')
 
 const emit = defineEmits<{
   'update:open': [value: boolean]

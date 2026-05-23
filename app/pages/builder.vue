@@ -1,31 +1,47 @@
 <template>
   <section class="px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
     <div class="max-w-[1600px] mx-auto flex flex-col gap-6">
-      <header class="flex items-center justify-between gap-4">
-        <div>
-          <p class="text-[11px] uppercase tracking-[0.18em] text-paper/40">
+      <header class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-[11px] uppercase tracking-[0.18em] text-paper/40 hidden sm:block">
             {{ $t('page.builder-label') }}
           </p>
-          <h1 class="font-display text-2xl text-paper mt-1">
-            {{ $t('page.builder-title') }}
+          <h1 class="font-display text-xl sm:text-2xl text-paper sm:mt-1 truncate">
+            {{ builder.currentSong ? builder.currentSong.title || $t('page.builder-new-default') : $t('page.builder-title') }}
           </h1>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <Button
             v-if="builder.currentSong"
             variant="outline"
             size="sm"
+            :title="$t('page.builder-back')"
             @click="onBack"
           >
             <ArrowLeft :size="14" />
-            {{ $t('page.builder-back') }}
+            <span class="hidden sm:inline">{{ $t('page.builder-back') }}</span>
           </Button>
           <BuilderSyncStatus v-if="builder.currentSong && drive.isConnected" />
           <BuilderDriveMenu />
-          <Button size="sm" @click="onCreate">
+          <Sheet>
+            <SheetTrigger as-child>
+              <Button variant="outline" size="sm" :title="$t('symbol-glossary.title')">
+                <BookOpen :size="14" />
+                <span class="hidden sm:inline">{{ $t('symbol-glossary.title') }}</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" class="w-full sm:max-w-md p-0">
+              <SheetHeader class="sr-only">
+                <SheetTitle>{{ $t('symbol-glossary.title') }}</SheetTitle>
+                <SheetDescription>{{ $t('symbol-glossary.description') }}</SheetDescription>
+              </SheetHeader>
+              <BuilderSymbolGlossary />
+            </SheetContent>
+          </Sheet>
+          <Button size="sm" :title="$t('page.builder-new')" @click="onCreate">
             <Plus :size="14" />
-            {{ $t('page.builder-new') }}
+            <span class="hidden sm:inline">{{ $t('page.builder-new') }}</span>
           </Button>
         </div>
       </header>
@@ -80,84 +96,94 @@
 
       <!-- Editor -->
       <article v-else class="flex flex-col gap-4">
-        <div class="rounded-xl border border-white/5 bg-ink-800/40 p-4 flex flex-wrap items-center gap-4 text-xs">
+        <div class="rounded-xl border border-white/5 bg-ink-800/40 p-3 sm:p-4 flex flex-col gap-3">
+          <!-- Fila 1: título -->
           <input
             v-model="titleModel"
-            class="bg-transparent border-b border-white/10 focus:border-gold-400/40 outline-none text-paper font-display text-lg px-1 py-0.5 min-w-[200px]"
+            class="w-full bg-transparent border-b border-white/10 focus:border-gold-400/40 outline-none text-paper font-display text-lg px-1 py-0.5"
             :placeholder="$t('page.builder-title-placeholder')"
           >
 
-          <div class="flex items-center gap-2">
-            <span class="text-paper/40">{{ $t('page.builder-key') }}</span>
-            <select
-              v-model="keyModel"
-              class="bg-ink-900 border border-white/10 rounded px-2 py-1 text-paper text-xs"
-            >
-              <option v-for="k in KEYS" :key="k" :value="k">{{ k }}</option>
-            </select>
+          <!-- Fila 2: metadatos -->
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
+            <label class="flex items-center gap-1.5">
+              <span class="text-paper/40">{{ $t('page.builder-key') }}</span>
+              <select
+                v-model="keyModel"
+                class="bg-ink-900 border border-white/10 rounded px-2 py-1 text-paper text-xs"
+              >
+                <option v-for="k in KEYS" :key="k" :value="k">{{ k }}</option>
+              </select>
+            </label>
+
+            <label class="flex items-center gap-1.5">
+              <span class="text-paper/40">{{ $t('page.builder-time') }}</span>
+              <select
+                v-model="timeModel"
+                class="bg-ink-900 border border-white/10 rounded px-2 py-1 text-paper text-xs"
+              >
+                <option v-for="t in TIMES" :key="t" :value="t">{{ t }}</option>
+              </select>
+            </label>
+
+            <label class="flex items-center gap-1.5">
+              <span class="text-paper/40">{{ $t('page.builder-tempo') }}</span>
+              <input
+                v-model.number="tempoModel"
+                type="number"
+                min="30"
+                max="240"
+                class="bg-ink-900 border border-white/10 rounded px-2 py-1 text-paper text-xs w-14"
+              >
+              <span class="text-paper/40">bpm</span>
+            </label>
           </div>
 
-          <div class="flex items-center gap-2">
-            <span class="text-paper/40">{{ $t('page.builder-time') }}</span>
-            <select
-              v-model="timeModel"
-              class="bg-ink-900 border border-white/10 rounded px-2 py-1 text-paper text-xs"
+          <!-- Fila 3: acciones -->
+          <div class="flex flex-wrap items-center gap-2 pt-1 border-t border-white/5">
+            <Button
+              v-if="!playback.isPlaying.value"
+              size="sm"
+              class="bg-aqua-400/15 text-aqua-200 hover:bg-aqua-400/25 border border-aqua-400/30 flex-1 sm:flex-none"
+              :disabled="!hasNotes"
+              @click="onPlay"
             >
-              <option v-for="t in TIMES" :key="t" :value="t">{{ t }}</option>
-            </select>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <span class="text-paper/40">{{ $t('page.builder-tempo') }}</span>
-            <input
-              v-model.number="tempoModel"
-              type="number"
-              min="30"
-              max="240"
-              class="bg-ink-900 border border-white/10 rounded px-2 py-1 text-paper text-xs w-16"
+              <Play :size="14" />
+              {{ $t('page.builder-play') }}
+            </Button>
+            <Button
+              v-else
+              size="sm"
+              variant="outline"
+              class="flex-1 sm:flex-none"
+              @click="playback.stop"
             >
-            <span class="text-paper/40">bpm</span>
+              <Square :size="14" />
+              {{ $t('page.builder-stop') }}
+            </Button>
+
+            <div class="flex-1 hidden sm:block" />
+
+            <Button
+              variant="outline"
+              size="sm"
+              :title="$t('page.builder-remove-measure')"
+              :disabled="(builder.currentSong?.measures.length ?? 0) <= 1"
+              @click="builder.removeLastMeasure(builder.currentSong!.id)"
+            >
+              <Minus :size="14" />
+              <span class="hidden sm:inline">{{ $t('page.builder-remove-measure') }}</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              :title="$t('page.builder-add-measure')"
+              @click="builder.addMeasure(builder.currentSong!.id)"
+            >
+              <Plus :size="14" />
+              <span class="hidden sm:inline">{{ $t('page.builder-add-measure') }}</span>
+            </Button>
           </div>
-
-          <div class="flex-1" />
-
-          <Button
-            v-if="!playback.isPlaying.value"
-            size="sm"
-            class="bg-aqua-400/15 text-aqua-200 hover:bg-aqua-400/25 border border-aqua-400/30"
-            :disabled="!hasNotes"
-            @click="onPlay"
-          >
-            <Play :size="14" />
-            {{ $t('page.builder-play') }}
-          </Button>
-          <Button
-            v-else
-            size="sm"
-            variant="outline"
-            @click="playback.stop"
-          >
-            <Square :size="14" />
-            {{ $t('page.builder-stop') }}
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            :disabled="(builder.currentSong?.measures.length ?? 0) <= 1"
-            @click="builder.removeLastMeasure(builder.currentSong!.id)"
-          >
-            <Minus :size="14" />
-            {{ $t('page.builder-remove-measure') }}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            @click="builder.addMeasure(builder.currentSong!.id)"
-          >
-            <Plus :size="14" />
-            {{ $t('page.builder-add-measure') }}
-          </Button>
         </div>
 
         <div class="rounded-xl border border-white/5 bg-ink-900/40 p-4">
@@ -205,9 +231,17 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowLeft, Minus, Play, Plus, Square, Trash2 } from 'lucide-vue-next'
+import { ArrowLeft, BookOpen, Minus, Play, Plus, Square, Trash2 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from '~/components/ui/sheet'
 import BuilderGrandStaff from '~/components/builder/BuilderGrandStaff.vue'
 import BuilderMeasureSheet from '~/components/builder/BuilderMeasureSheet.vue'
 import BuilderDriveMenu from '~/components/builder/BuilderDriveMenu.vue'

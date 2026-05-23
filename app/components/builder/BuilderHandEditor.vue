@@ -19,7 +19,7 @@
 
     <!-- Mini piano: scroll horizontal con todas las octavas -->
     <div class="rounded-lg border border-white/10 bg-ink-900/40 overflow-hidden">
-      <div ref="keyboardScrollRef" class="overflow-x-auto scroll-elegant p-2">
+      <div ref="keyboardScrollRef" class="overflow-x-auto scroll-hidden p-2">
         <div class="flex gap-1" :style="{ width: 'fit-content' }">
           <PianoKeyboardOctave
             v-for="oct in OCTAVE_RANGE"

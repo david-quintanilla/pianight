@@ -1,0 +1,19 @@
+{
+  "name": "Pianight",
+  "short_name": "Pianight",
+  "description": "Aprende acordes, lectura musical y compón tus canciones al piano.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07080c",
+  "theme_color": "#07080c",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
